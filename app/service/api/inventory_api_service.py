@@ -31,7 +31,20 @@ class InventoryApiService(BaseApiService, IInventoryService):
                 "end_time":       data.get("end_time"),
                 "start_meridiem": data.get("start_meridiem"),
                 "end_meridiem":   data.get("end_meridiem"),
-                "chemicals_use": [
+                # ── Wire names, do not "correct" these to the plural forms ───
+                # PATCH /inventory/{id} binds RecordUpdateRequest.ChemicalUse /
+                # .ActualChemicalUsed, i.e. the SINGULAR keys below, and both
+                # list items are ChemicalName -> "chemical_name".
+                #
+                # Sending "chemicals_use" / "actual_chemicals_used" instead does
+                # not fail: the properties default to an empty list, so the
+                # server's `if (request.ChemicalUse is not null)` still runs and
+                # clears the record's chemicals, returning 200.  Editing a
+                # record would silently erase both chemical lists.
+                #
+                # add_inventory_record and the offline sync engine already use
+                # these same singular names — this call was the odd one out.
+                "chemical_use": [
                     {
                         "chemical_name": c.get("chemical_name") or c.get("name") or "",
                         "quantity":      c.get("quantity") or c.get("qty") or "",
@@ -39,9 +52,9 @@ class InventoryApiService(BaseApiService, IInventoryService):
                     }
                     for c in data.get("chemicals_use", data.get("chemical_use", []))
                 ],
-                "actual_chemicals_used": [
+                "actual_chemical_used": [
                     {
-                        "actual_chemicals_name": (
+                        "chemical_name": (
                             c.get("actual_chemicals_name")
                             or c.get("chemical_name")
                             or c.get("name") or ""

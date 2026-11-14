@@ -6,6 +6,7 @@ Import and call install_custom_tooltips(app) once after creating QApplication.
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtCore import Qt, QEvent, QPoint, QTimer, QObject
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QPainter, QPainterPath, QPen
+from ui.theme import ui_font_family
 
 
 class _CustomTooltip(QWidget):
@@ -41,7 +42,7 @@ class _CustomTooltip(QWidget):
             self.hide()
             return
         self._text = text
-        fm = QFontMetrics(QFont("Segoe UI", 9))
+        fm = QFontMetrics(QFont(ui_font_family(), 9))
         text_rect = fm.boundingRect(text)
         pad_x, pad_y = 14, 8
         w = text_rect.width()  + pad_x * 2
@@ -70,12 +71,12 @@ class _CustomTooltip(QWidget):
         path.addRoundedRect(0.5, 0.5,
                             self.width() - 1, self.height() - 1, 6, 6)
         p.setBrush(QColor("#FFFFFF"))
-        p.setPen(QPen(QColor("#A8D5BA"), 1.0))
+        p.setPen(QPen(QColor("#D8DADE"), 1.0))
         p.drawPath(path)
         
         # Green text
-        p.setPen(QColor("#1B4332"))
-        p.setFont(QFont("Segoe UI", 9))
+        p.setPen(QColor("#1D1D1F"))
+        p.setFont(QFont(ui_font_family(), 9))
         p.drawText(self.rect(), Qt.AlignCenter, self._text)
         p.end()
 

@@ -161,7 +161,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: #FFFFFF;
-                font: bold 38pt 'Georgia';
+                font: bold 38pt 'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Variable Display', 'Segoe UI';
                 letter-spacing: 10px;
             }
         """)
@@ -177,7 +177,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: rgba(198, 246, 213, 0.70);
-                font: 10pt 'Segoe UI';
+                font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
                 letter-spacing: 5px;
             }
         """)
@@ -208,7 +208,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: rgba(198, 246, 213, 0.45);
-                font: italic 10pt 'Georgia';
+                font: italic 10pt 'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Variable Display', 'Segoe UI';
                 letter-spacing: 1px;
             }
         """)
@@ -247,7 +247,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: rgba(198, 246, 213, 0.65);
-                font: 10pt 'Segoe UI';
+                font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
                 letter-spacing: 2px;
             }
         """)
@@ -273,7 +273,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: rgba(198, 246, 213, 0.25);
-                font: 8pt 'Segoe UI';
+                font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
             }
         """)
         meta_row.addWidget(self.versionLabel)
@@ -286,7 +286,7 @@ class Ui_Intro(object):
                 background: transparent;
                 border: none;
                 color: rgba(198, 246, 213, 0.25);
-                font: 8pt 'Segoe UI';
+                font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
             }
         """)
         meta_row.addWidget(self.copyrightLabel)

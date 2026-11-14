@@ -9,9 +9,10 @@ from util.table_util import TableDataHelper
 
 from PyQt5.QtCore import Qt, QObject
 from PyQt5.QtGui import QColor
-from ui.style import btn_style, _BTN_EDIT_LOCKED
+from ui.style import btn_style, _BTN_EDIT_LOCKED, BTN_EDIT_ON_SELECTION
+from ui import theme
 
-_SELECTED_COLOR = QColor("#A8D5BA")
+_SELECTED_COLOR = QColor(theme.G100)
 _DEFAULT_COLOR  = QColor(Qt.white)
 _BTN_EDIT_OWNED = btn_style
 
@@ -93,14 +94,14 @@ class DashboardTableRenderer(QObject):
         else:
             cb.setEnabled(False)
             cb.setCursor(Qt.ForbiddenCursor)
-            cb.setToolTip("You cannot select another admin's record")   
-            cb.setStyleSheet("""
-                QCheckBox::indicator {
+            cb.setToolTip("You cannot select another admin's record")
+            cb.setStyleSheet(f"""
+                QCheckBox::indicator {{
                     width: 18px; height: 18px;
-                    border: 2px solid #D1D5DB;
-                    border-radius: 4px;
-                    background: #F3F4F6;
-                }
+                    border: 1px solid {theme.GRID};
+                    border-radius: 5px;
+                    background: {theme.BG};
+                }}
             """)
 
         container = QWidget()
@@ -184,20 +185,19 @@ class DashboardTableRenderer(QObject):
                 if is_selected:
                     widget.setStyleSheet(
                         f"QWidget {{ background-color: {color.name()}; }}"
-                        f"QPushButton {{ background-color: #cc3333; color: white; "
-                        f"border-radius: 6px; padding: 6px; }}"
+                        + BTN_EDIT_ON_SELECTION
                     )
                 else:
                     widget.setStyleSheet("background-color: #FFFFFF;")
 
         v_header = self.table.verticalHeaderItem(row)
         if v_header:
-            v_header.setBackground(color if is_selected else QColor("#F0F0F0"))
-            v_header.setForeground(QColor("#1B4332"))
+            v_header.setBackground(color if is_selected else QColor(theme.BG))
+            v_header.setForeground(QColor(theme.TEXT))
 
-    def _dim_row(self, row: int):  
-        muted      = QColor("#F3F4F6")
-        muted_text = QColor("#9CA3AF")
+    def _dim_row(self, row: int):
+        muted      = QColor(theme.BG)
+        muted_text = QColor(theme.SUBTLE)
         for col in range(1, 8):  
             item = self.table.item(row, col)
             if item:

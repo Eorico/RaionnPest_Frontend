@@ -1,9 +1,13 @@
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 from service.api.api_service import ApiService
 from service.offline.Service.offlineApiService import OfflineCapableApiService  # ← NEW
 from service.offline.Database.localDatabase import init_db                       # ← NEW
 from util.toolfix_util import install_custom_tooltips
+from ui import theme
 import sys
+import os
+import traceback
+from datetime import datetime
 
 from intro.intro import IntroWindow
 from login.login import LoginWindow
@@ -14,9 +18,65 @@ from dashboard.viewer.actual_chemical_viewer import ActualChemViewerWindow
 from dashboard.viewer.chemical_used_viewer import ChemUseViewerWindow
 
 
+LOG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "error.log")
+
+
+def install_crash_guard():
+    """
+    Keep one bad code path from taking the whole app down.
+
+    PyQt5 calls qFatal() when a Python exception escapes a slot — the process
+    dies on the spot, with no message and no chance to save.  Installing our own
+    sys.excepthook means Qt hands the exception here instead: we log it, tell
+    the user, and the event loop carries on.
+    """
+    reported = set()          # error signatures already shown to the user
+
+    def handle(exc_type, exc_value, exc_tb):
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_tb)
+            return
+
+        detail = "".join(traceback.format_exception(exc_type, exc_value, exc_tb))
+        print(detail, file=sys.stderr)
+        try:
+            with open(LOG_PATH, "a", encoding="utf-8") as log:
+                log.write(f"\n===== {datetime.now():%Y-%m-%d %H:%M:%S} =====\n{detail}")
+        except Exception:
+            pass
+
+        # Always log, but only ever show one dialog per distinct error: a fault
+        # inside a repeating handler (paint, timer) would otherwise stack modal
+        # dialogs faster than they can be dismissed.
+        signature = (exc_type.__name__, str(exc_value),
+                     tuple(traceback.extract_tb(exc_tb).format()[-3:]))
+        if signature in reported or len(reported) >= 12:
+            return
+        reported.add(signature)
+
+        try:
+            box = QMessageBox()
+            box.setIcon(QMessageBox.Warning)
+            box.setWindowTitle("Something went wrong")
+            box.setText("The last action could not be completed.")
+            box.setInformativeText(
+                "The system is still running — you can keep working or try again.\n"
+                f"Details were saved to:\n{LOG_PATH}"
+            )
+            box.setDetailedText(detail)
+            box.setStandardButtons(QMessageBox.Ok)
+            box.exec_()
+        except Exception:
+            pass          # never let the handler itself raise
+
+    sys.excepthook = handle
+
+
 class MainApp:
     def __init__(self):
         self.app = QApplication(sys.argv)
+        install_crash_guard()
+        theme.install(self.app)
         install_custom_tooltips(self.app)
 
         # ── Init SQLite tables (creates local_database.db if not exists) ──────
@@ -112,5 +172,22 @@ class MainApp:
 
 
 if __name__ == "__main__":
-    manager = MainApp()
+    try:
+        manager = MainApp()
+    except Exception:
+        # Startup failed before the event loop existed — report, don't vanish.
+        detail = traceback.format_exc()
+        print(detail, file=sys.stderr)
+        try:
+            with open(LOG_PATH, "a", encoding="utf-8") as log:
+                log.write(f"\n===== STARTUP {datetime.now():%Y-%m-%d %H:%M:%S} =====\n{detail}")
+            app = QApplication.instance() or QApplication(sys.argv)
+            QMessageBox.critical(
+                None, "Raionn could not start",
+                f"The system failed to start.\n\nDetails were saved to:\n{LOG_PATH}\n\n{detail}"
+            )
+        except Exception:
+            pass
+        sys.exit(1)
+
     sys.exit(manager.app.exec_())

@@ -7,6 +7,7 @@ from PyQt5.QtGui import QCursor, QFont
 from ui.docs_viewer import Ui_DocxViewer
 from io import BytesIO
 from docx import Document
+from ui.theme import ui_font_family, FONT as _FONT, FONT_ICON as ICON_FAMS
 
 # ── Zoom constants ────────────────────────────────────────────────────────────
 _ZOOM_MIN  = 50
@@ -16,6 +17,20 @@ _ZOOM_STEP = 10
 # ── Template validation keywords (at least 3 must match in header row) ────────
 _TEMPLATE_KEYWORDS = {"date", "client", "time", "chemical", "category", "remarks", "actual"}
 _TEMPLATE_MIN_COLS = 6
+
+# The online API serialises DocumentSummaryResponse.Filename as "filename",
+# while the offline cache stores it as "file_name".  Read either, and fall back
+# to the title so a malformed row still lists instead of raising KeyError.
+_NAME_KEYS = ("file_name", "filename", "fileName", "title")
+
+
+def _doc_name(doc: dict) -> str:
+    for key in _NAME_KEYS:
+        value = doc.get(key)
+        if value:
+            return str(value)
+    doc_id = doc.get("id")
+    return f"Document {doc_id}" if doc_id is not None else "Untitled document"
 
 
 class DocxViewer(QMainWindow):
@@ -65,7 +80,10 @@ class DocxViewer(QMainWindow):
         self.ui.actionRefresh.triggered.connect(self.refresh_file_list)
 
         # Export button shows a small menu
-        self.ui.btnExport.clicked.disconnect()          # detach from actionExportPDF
+        try:
+            self.ui.btnExport.clicked.disconnect()      # detach from actionExportPDF
+        except TypeError:
+            pass                                        # nothing was connected
         self.ui.btnExport.clicked.connect(self._show_export_menu)
 
     def eventFilter(self, obj, event):
@@ -111,7 +129,7 @@ class DocxViewer(QMainWindow):
         # Scale table content font
         base_pt = 10
         scaled_pt = max(7, int(base_pt * factor))
-        tbl_font = QFont("Segoe UI", scaled_pt)
+        tbl_font = QFont(ui_font_family(), scaled_pt)
         self.ui.inventoryTable1.setFont(tbl_font)
 
         # Scale row heights
@@ -120,7 +138,7 @@ class DocxViewer(QMainWindow):
             max(28, int(base_row_h * factor)))
 
         # Scale table header font
-        hdr_font = QFont("Segoe UI", max(7, int(9 * factor)), QFont.DemiBold)
+        hdr_font = QFont(ui_font_family(), max(7, int(9 * factor)), QFont.DemiBold)
         self.ui.inventoryTable1.horizontalHeader().setFont(hdr_font)
 
         # Re-fit rows to new font
@@ -200,14 +218,9 @@ class DocxViewer(QMainWindow):
 
     def _show_export_menu(self):
         menu = QMenu(self)
-        menu.setStyleSheet("""
-            QMenu { background: #fff; border: 1px solid #E0EDE6;
-                    border-radius: 8px; font: 10pt 'Segoe UI'; padding: 4px 0; }
-            QMenu::item { padding: 7px 22px 7px 16px; border-radius: 4px; margin: 1px 4px; }
-            QMenu::item:selected { background: #2D6A4F; color: #fff; }
-        """)
-        pdf_action  = menu.addAction("📄  Export as PDF")
-        docx_action = menu.addAction("📝  Save as DOCX")
+        # QMenu is styled app-wide by ui.theme.install()
+        pdf_action  = menu.addAction("Export as PDF")
+        docx_action = menu.addAction("Save as DOCX")
         action = menu.exec_(self.ui.btnExport.mapToGlobal(
             self.ui.btnExport.rect().bottomLeft()))
         if action == pdf_action:
@@ -412,9 +425,10 @@ class DocxViewer(QMainWindow):
     def refresh_file_list(self):
         self.ui.filesList.clear()
         self._doc_map.clear()
-        docs = self.api.get_documents()
+        docs = self.api.get_documents() or []
         for doc in docs:
-            self._add_file_item(doc)
+            if isinstance(doc, dict) and doc.get("id") is not None:
+                self._add_file_item(doc)
 
     def _add_file_item(self, doc: dict):
         item_widget = QWidget()
@@ -423,48 +437,49 @@ class DocxViewer(QMainWindow):
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(8)
 
-        file_btn = QPushButton(f"📄  {doc['file_name']}")
+        file_btn = QPushButton(_doc_name(doc))
         file_btn.setFlat(True)
         file_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        file_btn.setStyleSheet("""
-            QPushButton { color: rgba(198,246,213,0.85); background: transparent;
-                border: none; font: 10pt 'Segoe UI'; text-align: left; padding: 0; }
-            QPushButton:hover { color: #FFFFFF; }
+        file_btn.setStyleSheet(f"""
+            QPushButton {{ color: rgba(255,255,255,0.80); background: transparent;
+                border: none; font: 10pt {_FONT}; text-align: left; padding: 0; }}
+            QPushButton:hover {{ color: #FFFFFF; }}
         """)
         file_btn.clicked.connect(lambda _, d=doc: self._load_document(d))
         layout.addWidget(file_btn, 1)
 
-        del_btn = QPushButton("✕")
+        del_btn = QPushButton("")
         del_btn.setFixedSize(20, 20)
         del_btn.setCursor(QCursor(Qt.PointingHandCursor))
         del_btn.setToolTip("Delete file")
-        del_btn.setStyleSheet("""
-            QPushButton { color: rgba(255,100,100,0.70); background: transparent;
-                border: none; border-radius: 10px; font: 8pt 'Segoe UI'; padding: 0; }
-            QPushButton:hover { color: #FF6B6B; background: rgba(255,80,80,0.18); }
-            QPushButton:pressed { background: rgba(255,80,80,0.35); }
+        del_btn.setStyleSheet(f"""
+            QPushButton {{ color: rgba(255,255,255,0.45); background: transparent;
+                border: none; border-radius: 10px;
+                font: 7pt {ICON_FAMS}; padding: 0; }}
+            QPushButton:hover {{ color: #FFFFFF; background: rgba(255,69,58,0.80); }}
+            QPushButton:pressed {{ background: rgba(255,69,58,1.0); }}
         """)
         del_btn.clicked.connect(lambda _, d=doc: self._delete_document(d))
         layout.addWidget(del_btn)
 
         list_item = QListWidgetItem()
         list_item.setSizeHint(QSize(item_widget.sizeHint().width(), 40))
-        list_item.setData(Qt.UserRole, doc["id"])
+        list_item.setData(Qt.UserRole, doc.get("id"))
         self.ui.filesList.addItem(list_item)
         self.ui.filesList.setItemWidget(list_item, item_widget)
-        self._doc_map[doc["id"]] = doc
+        self._doc_map[doc.get("id")] = doc
 
     def _delete_document(self, doc: dict):
         reply = QMessageBox.question(
             self, "Delete File",
-            f"Delete '{doc['file_name']}'?\nThis action cannot be undone.",
+            f"Delete '{_doc_name(doc)}'?\nThis action cannot be undone.",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No
         )
         if reply == QMessageBox.Yes:
-            success, msg = self.api.delete_document(doc["id"])
+            success, msg = self.api.delete_document(doc.get("id"))
             if success:
                 self.refresh_file_list()
-                if self._current_doc and self._current_doc.get("id") == doc["id"]:
+                if self._current_doc and self._current_doc.get("id") == doc.get("id"):
                     self.ui.inventoryTable1.setRowCount(0)
                     self.ui.tocList.clear()
                     self.ui.docTitleLabel.setText("Inventory Report")
@@ -482,14 +497,15 @@ class DocxViewer(QMainWindow):
             self._load_document(doc)
 
     def _load_document(self, doc: dict):
-        raw = self.api.download_document(doc["id"])
+        raw = self.api.download_document(doc.get("id"))
         if not raw:
             QMessageBox.warning(self, "Error", "Could not download document.")
             return
         self._raw_bytes = raw
         records = self._parse_docx_to_records(raw)
-        self._current_doc = {"id": doc["id"], "title": doc["file_name"], "records": records}
-        self._render_document(records, doc["file_name"])
+        name = _doc_name(doc)
+        self._current_doc = {"id": doc.get("id"), "title": name, "records": records}
+        self._render_document(records, name)
         self._build_toc(records)
         self.ui.notesEdit.setPlainText(self._extract_statement(raw))
 

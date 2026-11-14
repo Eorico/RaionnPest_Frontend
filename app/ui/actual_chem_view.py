@@ -10,19 +10,18 @@ base_dir   = os.path.dirname(__file__)
 image_path = os.path.join(base_dir, "assets")
 
 # ── Shared theme tokens ───────────────────────────────────────────────────────
-_G50   = "#F0FAF4"
-_G100  = "#C6F6D5"
-_G200  = "#74C69D"
-_G400  = "#2D6A4F"
-_G600  = "#1B4332"
-_G800  = "#081C15"
+# ── Palette, typography: see ui/theme.py (single source of truth) ────────────
+from ui.theme import (
+    G50 as _G50, G100 as _G100, G200 as _G200, G400 as _G400,
+    G600 as _G600, G800 as _G800,
+    SURFACE as _SURFACE, BG as _BG, TEXT as _TEXT, MUTED as _MUTED,
+    SUBTLE as _SUBTLE, BORDER as _BORDER,
+    HEADER_BG as _HEADER_BG, SIDEBAR_BG as _SIDEBAR_BG,
+    BLUE as _BLUE, BLUE_HI as _BLUE_HI, RED as _RED, RED_HI as _RED_HI,
+    FONT as _FONT, FONT_DISPLAY as _FONT_DISPLAY,
+)
+from ui.theme import ui_font_family
 
-_SURFACE    = "#FFFFFF"
-_BG         = "#F4FAF7"
-_TEXT       = _G600
-_MUTED      = "#6B8F78"
-_BORDER     = "#E0EDE6"
-_HEADER_BG  = _G400
 
 # ── Stylesheets ───────────────────────────────────────────────────────────────
 _TABLE_SS = f"""
@@ -31,7 +30,7 @@ QTableWidget {{
     alternate-background-color: {_BG};
     gridline-color: {_BORDER};
     border: none;
-    font: 10pt 'Segoe UI';
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     color: {_TEXT};
     selection-background-color: {_G100};
     selection-color: {_TEXT};
@@ -41,7 +40,7 @@ QTableWidget::item {{
     border: none;
     color: {_TEXT};
 }}
-QTableWidget::item:hover    {{ background: #E8F5EE; }}
+QTableWidget::item:hover    {{ background: {_G50}; }}
 QTableWidget::item:selected {{ background: {_G100}; color: {_TEXT}; }}
 QHeaderView::section {{
     background: {_G400};
@@ -49,14 +48,14 @@ QHeaderView::section {{
     border: none;
     border-right: 1px solid {_G600};
     padding: 10px 14px;
-    font: 600 10pt 'Segoe UI';
+    font: 600 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     letter-spacing: 0.3px;
 }}
 QHeaderView::section:vertical {{
     background: {_BG};
     color: {_MUTED};
     border-right: 1px solid {_BORDER};
-    font: 9pt 'Segoe UI';
+    font: 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     padding: 4px;
 }}
 QHeaderView {{ background: transparent; border: none; }}
@@ -85,7 +84,7 @@ QPushButton {{
     border: 1.5px dashed {_G400};
     border-radius: 8px;
     padding: 8px 18px;
-    font: 500 10pt 'Segoe UI';
+    font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover   {{ background: {_G100}; border-color: {_G600}; color: {_G600}; }}
 QPushButton:pressed {{ background: {_G100}; }}
@@ -94,13 +93,13 @@ QPushButton:pressed {{ background: {_G100}; }}
 _DEL_BTN_SS = """
 QPushButton {
     background: transparent;
-    color: #DC2626;
+    color: #D70015;
     border: 1.5px dashed rgba(220,38,38,0.45);
     border-radius: 8px;
     padding: 8px 18px;
-    font: 500 10pt 'Segoe UI';
+    font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }
-QPushButton:hover   { background: rgba(220,38,38,0.06); border-color: #DC2626; }
+QPushButton:hover   { background: rgba(220,38,38,0.06); border-color: #D70015; }
 QPushButton:pressed { background: rgba(220,38,38,0.12); }
 """
 
@@ -111,7 +110,7 @@ QPushButton {{
     border: 1.5px solid {_BORDER};
     border-radius: 8px;
     padding: 8px 18px;
-    font: 500 10pt 'Segoe UI';
+    font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover   {{ background: {_BG}; border-color: {_G200}; color: {_TEXT}; }}
 QPushButton:pressed {{ background: {_G100}; border-color: {_G400}; color: {_G400}; }}
@@ -125,7 +124,7 @@ QPushButton {{
     border: none;
     border-radius: 8px;
     padding: 8px 24px;
-    font: 600 10pt 'Segoe UI';
+    font: 600 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover   {{ background: {_G600}; }}
 QPushButton:pressed {{ background: {_G800}; }}
@@ -137,7 +136,7 @@ QPushButton {
     color: rgba(255,255,255,0.75);
     border: none;
     border-radius: 0px;
-    font: 10pt 'Segoe MDL2 Assets', 'Segoe UI Symbol', 'Segoe UI', sans-serif;
+    font: 10pt 'Segoe MDL2 Assets', 'Segoe UI Symbol', 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
     min-width: 46px;
     min-height: 64px;
     max-height: 64px;
@@ -152,7 +151,7 @@ QPushButton {
     color: rgba(255,255,255,0.85);
     border: none;
     border-radius: 0px;
-    font: 10pt 'Segoe MDL2 Assets', 'Segoe UI Symbol', 'Segoe UI', sans-serif;
+    font: 10pt 'Segoe MDL2 Assets', 'Segoe UI Symbol', 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI', sans-serif;
     min-width: 46px;
     min-height: 64px;
     max-height: 64px;
@@ -162,7 +161,7 @@ QPushButton:pressed { background: #A31C12; color: #fff; }
 """
 
 _LABEL_MUTED_SS = (
-    f"color: {_MUTED}; font: 600 8pt 'Segoe UI'; "
+    f"color: {_MUTED}; font: 600 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; "
     f"letter-spacing: 1.4px; background: transparent; border: none;"
 )
 
@@ -200,7 +199,7 @@ class _CustomTooltip(QtWidgets.QWidget):
             self.hide()
             return
         self._text = text
-        fm = QtGui.QFontMetrics(QtGui.QFont("Segoe UI", 9))
+        fm = QtGui.QFontMetrics(QtGui.QFont(ui_font_family(), 9))
         text_rect = fm.boundingRect(text)
         pad_x, pad_y = 14, 8
         w = text_rect.width()  + pad_x * 2
@@ -228,10 +227,10 @@ class _CustomTooltip(QtWidgets.QWidget):
                             self.width() - 1, self.height() - 1,
                             6, 6)
         p.setBrush(QtGui.QColor("#FFFFFF"))
-        p.setPen(QtGui.QPen(QtGui.QColor("#A8D5BA"), 1.0))
+        p.setPen(QtGui.QPen(QtGui.QColor("#D8DADE"), 1.0))
         p.drawPath(path)
-        p.setPen(QtGui.QColor("#1B4332"))
-        p.setFont(QtGui.QFont("Segoe UI", 9))
+        p.setPen(QtGui.QColor("#1D1D1F"))
+        p.setFont(QtGui.QFont(ui_font_family(), 9))
         p.drawText(self.rect(), QtCore.Qt.AlignCenter, self._text)
         p.end()
 
@@ -267,7 +266,7 @@ def _caption_btn(symbol: str, close: bool = False, height: int = 64) -> QtWidget
 
 # ── Shadow-painting central widget ───────────────────────────────────────────
 class _ShadowWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None, shadow_inset=18, bg="#F4FAF7", corner_r=10):
+    def __init__(self, parent=None, shadow_inset=18, bg="#F2F2F7", corner_r=10):
         super().__init__(parent)
         self._si        = shadow_inset
         self._bg        = bg
@@ -311,7 +310,7 @@ class _ShadowWidget(QtWidgets.QWidget):
                                  float(card.width()), float(card.height()),
                                  float(self._corner_r), float(self._corner_r))
         p.setBrush(QtGui.QColor(self._bg))
-        p.setPen(QtGui.QPen(QtGui.QColor("#E0EDE6"), 0.8))
+        p.setPen(QtGui.QPen(QtGui.QColor("#D8DADE"), 0.8))
         p.drawPath(card_path)
         p.end()
 
@@ -394,10 +393,10 @@ class Ui_MainWindow(object):
                 chem_px.scaled(26, 26, QtCore.Qt.KeepAspectRatio,
                                QtCore.Qt.SmoothTransformation))
         else:
-            icon_pill.setText("🧪")
+            icon_pill.setText("")
             icon_pill.setStyleSheet(
                 icon_pill.styleSheet()
-                + "font: 17pt 'Segoe UI'; color: #fff;")
+                + "font: 13pt 'Segoe Fluent Icons','Segoe MDL2 Assets'; color: #fff;")
         tb_h.addWidget(icon_pill)
 
         # Title + subtitle stack
@@ -407,12 +406,12 @@ class Ui_MainWindow(object):
 
         h_title = QtWidgets.QLabel("Actual Chemicals on Hand")
         h_title.setStyleSheet(
-            "color: #fff; font: 700 11pt 'Segoe UI'; "
+            "color: #fff; font: 700 11pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; "
             "background: transparent; border: none; letter-spacing: 0.3px;")
 
         h_sub = QtWidgets.QLabel("View and manage actual chemical stock records")
         h_sub.setStyleSheet(
-            "color: rgba(198,246,213,0.55); font: 8pt 'Segoe UI'; "
+            "color: rgba(198,246,213,0.55); font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; "
             "background: transparent; border: none;")
 
         title_col.addWidget(h_title)
@@ -423,9 +422,9 @@ class Ui_MainWindow(object):
         # Window caption buttons (64 px tall, matches RecycleBin)
         self._minimizeBtn = _caption_btn("—", height=64)
         self._minimizeBtn.setToolTip("Minimize")
-        self._maximizeBtn = _caption_btn("⬜", height=64)
+        self._maximizeBtn = _caption_btn("", height=64)
         self._maximizeBtn.setToolTip("Maximize / Restore")
-        self._closeBtn    = _caption_btn("✕", close=True, height=64)
+        self._closeBtn    = _caption_btn("", close=True, height=64)
         self._closeBtn.setToolTip("Close")
 
         tb_h.addWidget(self._minimizeBtn)
@@ -481,7 +480,7 @@ class Ui_MainWindow(object):
             ("Remarks",                   QtWidgets.QHeaderView.Stretch),
         ]):
             item = QtWidgets.QTableWidgetItem(text)
-            item.setFont(QtGui.QFont("Segoe UI", 9, QtGui.QFont.Bold))
+            item.setFont(QtGui.QFont(ui_font_family(), 9, QtGui.QFont.Bold))
             self.actualChemicalOnHand.setHorizontalHeaderItem(col, item)
             self.actualChemicalOnHand.horizontalHeader().setSectionResizeMode(
                 col, mode)

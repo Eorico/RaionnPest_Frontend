@@ -1,7 +1,16 @@
 from PyQt5.QtGui import QPainter, QPen, QColor as QC, QBrush
 from PyQt5.QtCore import QRect, Qt as _Qt
 from PyQt5.QtWidgets import QCheckBox
- 
+
+from ui import theme
+
+# macOS-style checkbox: hairline border when empty, solid accent fill when set.
+_BOX_RADIUS   = 5
+_BORDER_IDLE  = "#C7C7CC"
+_BORDER_HOVER = theme.G200
+_FILL_HOVER   = theme.G50
+
+
 class _GreenCheckBox(QCheckBox):
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -14,10 +23,10 @@ class _GreenCheckBox(QCheckBox):
         rect  = QRect(x, y, size, size)
 
         if self.isChecked():
-            # ── Filled green box ──────────────────────────────────────────────
-            painter.setPen(QPen(QC("#1B4332"), 2))
-            painter.setBrush(QBrush(QC("#2D6A4F")))
-            painter.drawRoundedRect(rect, 5, 5)
+            # ── Filled accent box, no outline (macOS) ────────────────────────
+            painter.setPen(_Qt.NoPen)
+            painter.setBrush(QBrush(QC(theme.G400)))
+            painter.drawRoundedRect(rect, _BOX_RADIUS, _BOX_RADIUS)
 
             # ── White checkmark ───────────────────────────────────────────────
             pen = QPen(QC("#FFFFFF"), 2.5)
@@ -38,14 +47,14 @@ class _GreenCheckBox(QCheckBox):
             )
 
         else:
-            # ── Empty white box with green border ────────────────────────────
+            # ── Empty box with a hairline border ─────────────────────────────
             hover = self.underMouse()
-            border_color = QC("#1B4332") if hover else QC("#2D6A4F")
-            bg_color     = QC("#D6F0E0") if hover else QC("#FFFFFF")
+            border_color = QC(_BORDER_HOVER if hover else _BORDER_IDLE)
+            bg_color     = QC(_FILL_HOVER if hover else "#FFFFFF")
 
-            painter.setPen(QPen(border_color, 2))
+            painter.setPen(QPen(border_color, 1.5))
             painter.setBrush(QBrush(bg_color))
-            painter.drawRoundedRect(rect, 5, 5)
+            painter.drawRoundedRect(rect, _BOX_RADIUS, _BOX_RADIUS)
 
         painter.end()
 

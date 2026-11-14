@@ -3,19 +3,18 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEvent, QPoint, QTimer, pyqtProperty
 from PyQt5.QtGui import QFontMetrics, QFont as QGuiFont, QColor, QPainter, QPainterPath, QPen
 
-_G100 = "#C6F6D5"
-_G200 = "#74C69D"
-_G400 = "#2D6A4F"
-_G600 = "#1B4332"
-_G800 = "#081C15"
+# ── Palette, typography: see ui/theme.py (single source of truth) ────────────
+from ui.theme import (
+    G50 as _G50, G100 as _G100, G200 as _G200, G400 as _G400,
+    G600 as _G600, G800 as _G800,
+    SURFACE as _SURFACE, BG as _BG, TEXT as _TEXT, MUTED as _MUTED,
+    SUBTLE as _SUBTLE, BORDER as _BORDER,
+    HEADER_BG as _HEADER_BG, SIDEBAR_BG as _SIDEBAR_BG,
+    BLUE as _BLUE, BLUE_HI as _BLUE_HI, RED as _RED, RED_HI as _RED_HI,
+    FONT as _FONT, FONT_DISPLAY as _FONT_DISPLAY,
+)
+from ui.theme import ui_font_family
 
-_SURFACE    = "#FFFFFF"
-_BG         = "#F4FAF7"
-_TEXT       = _G600
-_MUTED      = "#6B8F78"
-_BORDER     = "#E0EDE6"
-_HEADER_BG  = _G400
-_SIDEBAR_BG = "#1A3D2B"
 
 class _CustomTooltip(QtWidgets.QWidget):
     _instance = None
@@ -40,7 +39,7 @@ class _CustomTooltip(QtWidgets.QWidget):
         if not text:
             self.hide(); return
         self._text = text
-        fm = QFontMetrics(QGuiFont("Segoe UI", 9))
+        fm = QFontMetrics(QGuiFont(ui_font_family(), 9))
         tr = fm.boundingRect(text)
         px, py = 14, 8
         self.setFixedSize(tr.width() + px*2, tr.height() + py*2)
@@ -60,10 +59,10 @@ class _CustomTooltip(QtWidgets.QWidget):
         path = QPainterPath()
         path.addRoundedRect(0.5, 0.5, self.width()-1, self.height()-1, 6, 6)
         p.setBrush(QColor("#FFFFFF"))
-        p.setPen(QPen(QColor("#A8D5BA"), 1.0))
+        p.setPen(QPen(QColor("#D8DADE"), 1.0))
         p.drawPath(path)
-        p.setPen(QColor("#1B4332"))
-        p.setFont(QGuiFont("Segoe UI", 9))
+        p.setPen(QColor("#1D1D1F"))
+        p.setFont(QGuiFont(ui_font_family(), 9))
         p.drawText(self.rect(), QtCore.Qt.AlignCenter, self._text)
         p.end()
 
@@ -86,7 +85,7 @@ def install_custom_tooltips(target):
     target._tooltip_filter = f
 
 class _ShadowWidget(QtWidgets.QWidget):
-    def __init__(self, parent=None, shadow_inset=18, bg="#F4FAF7", corner_r=10):
+    def __init__(self, parent=None, shadow_inset=18, bg="#F2F2F7", corner_r=10):
         super().__init__(parent)
         self._si = shadow_inset
         self._bg = bg
@@ -123,17 +122,17 @@ class _ShadowWidget(QtWidgets.QWidget):
                                  float(card.width()), float(card.height()),
                                  float(self._corner_r), float(self._corner_r))
         p.setBrush(QColor(self._bg))
-        p.setPen(QPen(QColor("#E0EDE6"), 0.8))
+        p.setPen(QPen(QColor("#D8DADE"), 0.8))
         p.drawPath(card_path)
         p.end()
 
 _SIDEBAR_HEADER_SS = f"""
 QLabel {{ background: #0F2419; color: rgba(198,246,213,0.40);
-    font: 600 7pt 'Segoe UI'; letter-spacing: 2px; padding: 8px 14px; border: none; }}
+    font: 600 7pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; letter-spacing: 2px; padding: 8px 14px; border: none; }}
 """
 _LIST_SS = f"""
 QListWidget {{ background: transparent; color: {_G100}; border: none;
-    font: 10pt 'Segoe UI'; outline: none; padding: 4px 0; }}
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; outline: none; padding: 4px 0; }}
 QListWidget::item {{ padding: 8px 14px; border-radius: 6px; margin: 1px 6px;
     color: rgba(198,246,213,0.70); }}
 QListWidget::item:hover {{ background: rgba(255,255,255,0.07); color: {_G100}; }}
@@ -163,13 +162,13 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 _TABLE_SS = f"""
 QTableWidget#inventoryTable1 {{
     background: {_SURFACE}; alternate-background-color: {_BG};
-    gridline-color: {_BORDER}; color: {_TEXT}; font: 10pt 'Segoe UI';
+    gridline-color: {_BORDER}; color: {_TEXT}; font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     border: none; selection-background-color: {_G100}; selection-color: {_TEXT};
 }}
 QTableWidget#inventoryTable1::item {{ padding: 8px 12px; border: none; }}
-QTableWidget#inventoryTable1::item:hover {{ background: #E8F5EE; }}
+QTableWidget#inventoryTable1::item:hover {{ background: {_G50}; }}
 QTableWidget#inventoryTable1 QHeaderView::section {{
-    background: {_G400}; color: #fff; font: 600 9pt 'Segoe UI';
+    background: {_G400}; color: #fff; font: 600 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     padding: 10px 14px; border: none; border-right: 1px solid {_G600};
     min-height: 40px;
 }}
@@ -180,21 +179,21 @@ QScrollBar::handle:vertical:hover {{ background: {_G400}; }}
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{ height: 0; }}
 """
 _NOTES_SS = f"""
-QTextEdit#notesEdit {{ background: {_SURFACE}; color: {_TEXT}; font: 10pt 'Segoe UI';
+QTextEdit#notesEdit {{ background: {_SURFACE}; color: {_TEXT}; font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     border: none; padding: 8px 4px; selection-background-color: {_G100}; }}
 QTextEdit#notesEdit:focus {{ border: none; background: {_SURFACE}; }}
 """
 _TITLE_BAR_H = 48
 _CAPTION_IDLE_SS = f"""
 QPushButton {{ background: transparent; color: rgba(255,255,255,0.75); border: none;
-    border-radius: 0px; font: 10pt 'Segoe MDL2 Assets','Segoe UI Symbol','Segoe UI',sans-serif;
+    border-radius: 0px; font: 10pt 'Segoe Fluent Icons','Segoe MDL2 Assets','Segoe UI Symbol';
     min-width: 46px; min-height: {_TITLE_BAR_H}px; max-height: {_TITLE_BAR_H}px; }}
 QPushButton:hover {{ background: rgba(255,255,255,0.13); color: #fff; }}
 QPushButton:pressed {{ background: rgba(255,255,255,0.22); color: #fff; }}
 """
 _CAPTION_CLOSE_SS = f"""
 QPushButton {{ background: transparent; color: rgba(255,255,255,0.85); border: none;
-    border-radius: 0px; font: 10pt 'Segoe MDL2 Assets','Segoe UI Symbol','Segoe UI',sans-serif;
+    border-radius: 0px; font: 10pt 'Segoe Fluent Icons','Segoe MDL2 Assets','Segoe UI Symbol';
     min-width: 46px; min-height: {_TITLE_BAR_H}px; max-height: {_TITLE_BAR_H}px; }}
 QPushButton:hover {{ background: #C42B1C; color: #fff; }}
 QPushButton:pressed {{ background: #A31C12; color: #fff; }}
@@ -202,12 +201,12 @@ QPushButton:pressed {{ background: #A31C12; color: #fff; }}
 _TOOLBAR_BTN_SS = f"""
 QPushButton {{ background: transparent; color: rgba(198,246,213,0.80);
     border: 1px solid transparent; border-radius: 5px; padding: 3px 10px;
-    font: 10pt 'Segoe UI'; min-width: 48px; }}
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; min-width: 48px; }}
 QPushButton:hover {{ background: rgba(255,255,255,0.12); border-color: rgba(198,246,213,0.28); color: #fff; }}
 QPushButton:pressed {{ background: rgba(255,255,255,0.20); }}
 """
 _ZOOM_LABEL_SS = f"""
-QLabel {{ color: rgba(198,246,213,0.90); font: 600 9pt 'Segoe UI';
+QLabel {{ color: rgba(198,246,213,0.90); font: 600 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
     background: rgba(0,0,0,0.15); border-radius: 4px;
     padding: 2px 8px; border: none; min-width: 46px; }}
 """
@@ -260,26 +259,26 @@ class Ui_DocxViewer(object):
         tb_h.setContentsMargins(14, 0, 0, 0)
         tb_h.setSpacing(10)
 
-        icon_pill = QtWidgets.QLabel("📄")
+        icon_pill = QtWidgets.QLabel("")
         icon_pill.setFixedSize(30, 30)
         icon_pill.setAlignment(QtCore.Qt.AlignCenter)
         icon_pill.setStyleSheet("background: rgba(255,255,255,0.12); border-radius: 7px; "
-                                "font: 14pt 'Segoe UI'; color: #fff; border: none;")
+                                "font: 12pt 'Segoe Fluent Icons','Segoe MDL2 Assets'; color: #fff; border: none;")
         tb_h.addWidget(icon_pill)
 
         title_col = QtWidgets.QVBoxLayout()
         title_col.setSpacing(0); title_col.setContentsMargins(0,0,0,0)
         h_title = QtWidgets.QLabel("Document Viewer")
-        h_title.setStyleSheet("color: #fff; font: 700 10pt 'Segoe UI'; background: transparent; border: none;")
+        h_title.setStyleSheet("color: #fff; font: 700 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         h_sub = QtWidgets.QLabel("Raionn Pest Solutions")
-        h_sub.setStyleSheet("color: rgba(198,246,213,0.55); font: 8pt 'Segoe UI'; background: transparent; border: none;")
+        h_sub.setStyleSheet("color: rgba(198,246,213,0.55); font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         title_col.addWidget(h_title); title_col.addWidget(h_sub)
         tb_h.addLayout(title_col)
         tb_h.addStretch(1)
 
-        self._minimizeBtn = _caption_btn("—"); self._minimizeBtn.setToolTip("Minimize")
-        self._maximizeBtn = _caption_btn("⬜"); self._maximizeBtn.setToolTip("Maximize / Restore")
-        self._closeBtn    = _caption_btn("✕", close=True); self._closeBtn.setToolTip("Close")
+        self._minimizeBtn = _caption_btn(""); self._minimizeBtn.setToolTip("Minimize")
+        self._maximizeBtn = _caption_btn(""); self._maximizeBtn.setToolTip("Maximize / Restore")
+        self._closeBtn    = _caption_btn("", close=True); self._closeBtn.setToolTip("Close")
         tb_h.addWidget(self._minimizeBtn)
         tb_h.addWidget(self._maximizeBtn)
         tb_h.addWidget(self._closeBtn)
@@ -306,13 +305,13 @@ class Ui_DocxViewer(object):
         self.menubar.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.menubar.setStyleSheet(f"""
             QMenuBar {{ background: transparent; color: rgba(198,246,213,0.80);
-                font: 10pt 'Segoe UI'; padding: 0px; border: none; spacing: 0px; }}
+                font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; padding: 0px; border: none; spacing: 0px; }}
             QMenuBar::item {{ padding: 5px 14px; border-radius: 4px; background: transparent;
                 color: rgba(198,246,213,0.75); }}
             QMenuBar::item:selected {{ background: rgba(255,255,255,0.12); color: #fff; }}
             QMenuBar::item:pressed {{ background: rgba(255,255,255,0.20); }}
             QMenu {{ background: {_SURFACE}; color: {_TEXT}; border: 1px solid {_BORDER};
-                border-radius: 8px; font: 10pt 'Segoe UI'; padding: 4px 0; }}
+                border-radius: 8px; font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; padding: 4px 0; }}
             QMenu::item {{ padding: 7px 22px 7px 16px; border-radius: 4px; margin: 1px 4px; }}
             QMenu::item:selected {{ background: {_G400}; color: #fff; }}
             QMenu::separator {{ height: 1px; background: {_BORDER}; margin: 4px 12px; }}
@@ -357,7 +356,7 @@ class Ui_DocxViewer(object):
             f.setStyleSheet("background: rgba(198,246,213,0.22); border: none; min-width: 1px; max-width: 1px;")
             return f
 
-        self.btnOpen    = _tbtn("📂 Open",   "Open a document file")
+        self.btnOpen    = _tbtn("Open",   "Open a document file")
         self.btnExport  = _tbtn("Export",    "Export current document")
         self.btnPrint   = _tbtn("Print",     "Print document")
 
@@ -507,18 +506,18 @@ class Ui_DocxViewer(object):
         hdr_title_col.setSpacing(2)
         self.companyName = QtWidgets.QLabel("Raionn Pest Solutions")
         self.companyName.setObjectName("companyName")
-        self.companyName.setStyleSheet(f"color: {_TEXT}; font: bold 20pt 'Georgia'; background: transparent;")
+        self.companyName.setStyleSheet(f"color: {_TEXT}; font: bold 20pt 'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Variable Display', 'Segoe UI'; background: transparent;")
         hdr_title_col.addWidget(self.companyName)
         self.companyTagline = QtWidgets.QLabel(
             "Professional Pest Control and Inventory Management  |  raionnpest@gmail.com")
         self.companyTagline.setObjectName("companyTagline")
-        self.companyTagline.setStyleSheet(f"color: {_MUTED}; font: 9pt 'Segoe UI'; background: transparent;")
+        self.companyTagline.setStyleSheet(f"color: {_MUTED}; font: 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent;")
         hdr_title_col.addWidget(self.companyTagline)
         hdr_h1.addLayout(hdr_title_col)
         hdr_h1.addStretch()
         chip = QtWidgets.QLabel("  ACTIVE  ")
         chip.setFixedHeight(24)
-        chip.setStyleSheet("QLabel { background: #D1FAE5; color: #065F46; font: bold 8pt 'Segoe UI';"
+        chip.setStyleSheet("QLabel { background: #D1FAE5; color: #065F46; font: bold 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';"
                            "border-radius: 12px; padding: 0 10px; letter-spacing: 2px; }")
         hdr_h1.addWidget(chip, 0, QtCore.Qt.AlignVCenter)
         lay1.addWidget(hdr_block1)
@@ -530,12 +529,12 @@ class Ui_DocxViewer(object):
         meta_row = QtWidgets.QHBoxLayout()
         self.docTitleLabel = QtWidgets.QLabel("Inventory Report")
         self.docTitleLabel.setObjectName("docTitleLabel")
-        self.docTitleLabel.setStyleSheet(f"color: {_TEXT}; font: bold 14pt 'Segoe UI'; background: transparent;")
+        self.docTitleLabel.setStyleSheet(f"color: {_TEXT}; font: bold 14pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent;")
         meta_row.addWidget(self.docTitleLabel)
         meta_row.addStretch()
         self.metaLabel = QtWidgets.QLabel("No document loaded")
         self.metaLabel.setObjectName("metaLabel")
-        self.metaLabel.setStyleSheet(f"color: {_MUTED}; font: 9pt 'Segoe UI'; background: transparent;")
+        self.metaLabel.setStyleSheet(f"color: {_MUTED}; font: 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent;")
         self.metaLabel.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         meta_row.addWidget(self.metaLabel)
         lay1.addLayout(meta_row)
@@ -576,12 +575,12 @@ class Ui_DocxViewer(object):
         hdr_h2.addWidget(accent_bar2)
         self.companyName2 = QtWidgets.QLabel("Raionn Pest Solutions")
         self.companyName2.setObjectName("companyName2")
-        self.companyName2.setStyleSheet(f"color: {_TEXT}; font: bold 14pt 'Georgia'; background: transparent;")
+        self.companyName2.setStyleSheet(f"color: {_TEXT}; font: bold 14pt 'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Variable Display', 'Segoe UI'; background: transparent;")
         hdr_h2.addWidget(self.companyName2)
         hdr_h2.addStretch()
         pg2_chip = QtWidgets.QLabel("  Page 2  ")
         pg2_chip.setFixedHeight(22)
-        pg2_chip.setStyleSheet(f"QLabel {{ background: {_BG}; color: {_G400}; font: bold 8pt 'Segoe UI';"
+        pg2_chip.setStyleSheet(f"QLabel {{ background: {_BG}; color: {_G400}; font: bold 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';"
                                f"border-radius: 11px; border: 1px solid {_G100}; padding: 0 8px; }}")
         hdr_h2.addWidget(pg2_chip, 0, QtCore.Qt.AlignVCenter)
         lay2.addWidget(hdr_block2)
@@ -701,7 +700,7 @@ class Ui_DocxViewer(object):
         h.addWidget(pip, 0, QtCore.Qt.AlignVCenter)
         lbl = QtWidgets.QLabel(text)
         lbl.setObjectName(obj_name)
-        lbl.setStyleSheet(f"color: {_TEXT}; font: bold 11pt 'Segoe UI'; background: transparent; border: none;")
+        lbl.setStyleSheet(f"color: {_TEXT}; font: bold 11pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         h.addWidget(lbl)
         h.addStretch()
         return row
@@ -720,10 +719,10 @@ class Ui_DocxViewer(object):
         inner.setContentsMargins(0, 0, 0, 0)
         left_lbl = QtWidgets.QLabel(left_text)
         left_lbl.setObjectName(obj_name)
-        left_lbl.setStyleSheet(f"color: {_MUTED}; font: 8pt 'Segoe UI'; background: transparent; border: none;")
+        left_lbl.setStyleSheet(f"color: {_MUTED}; font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         inner.addWidget(left_lbl); inner.addStretch()
         right_lbl = QtWidgets.QLabel(right_text)
-        right_lbl.setStyleSheet(f"color: {_MUTED}; font: 8pt 'Segoe UI'; background: transparent; border: none;")
+        right_lbl.setStyleSheet(f"color: {_MUTED}; font: 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         inner.addWidget(right_lbl)
         v.addLayout(inner)
         return row

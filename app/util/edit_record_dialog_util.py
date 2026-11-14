@@ -15,26 +15,29 @@ from PyQt5.QtGui import (
     QFont, QColor, QPainter, QPainterPath, QPen, QRegion,
     QFontMetrics, QCursor
 )
+from ui.theme import ui_font_family
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Theme tokens
 # ══════════════════════════════════════════════════════════════════════════════
-_CLR_BG          = "#F0FAF4"
-_CLR_PRIMARY     = "#2F6B3F"
-_CLR_PRIMARY_DK  = "#1B4332"
-_CLR_PRIMARY_XDK = "#0D2B1A"
-_CLR_ACCENT      = "#C6F6D5"
-_CLR_TEXT        = "#1B4332"
-_CLR_BORDER      = "#A8D5BA"
-_CLR_GRID        = "#D6EDE0"
-_CLR_SURFACE     = "#FFFFFF"
-_CLR_SURFACE_2   = "#EDF7F1"
-_CLR_DANGER      = "#B91C1C"
-_CLR_DANGER_BG   = "#FEF2F2"
+from ui import theme
 
-_FONT            = "'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI', sans-serif"
-_FONT_DISPLAY    = "'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Semibold', sans-serif"
+_CLR_BG          = theme.BG
+_CLR_PRIMARY     = theme.G400
+_CLR_PRIMARY_DK  = theme.G600
+_CLR_PRIMARY_XDK = theme.G800
+_CLR_ACCENT      = theme.G100
+_CLR_TEXT        = theme.TEXT
+_CLR_BORDER      = theme.BORDER
+_CLR_GRID        = theme.GRID
+_CLR_SURFACE     = theme.SURFACE
+_CLR_SURFACE_2   = theme.BG_2
+_CLR_DANGER      = theme.RED
+_CLR_DANGER_BG   = theme.RED_BG
+
+_FONT            = theme.FONT
+_FONT_DISPLAY    = theme.FONT_DISPLAY
 _CORNER_R        = 12
 _SHADOW_INSET    = 18
 
@@ -71,7 +74,7 @@ class _CustomTooltip(QWidget):
             self.hide()
             return
         self._text = text
-        fm = QFontMetrics(QFont("Segoe UI", 9))
+        fm = QFontMetrics(QFont(ui_font_family(), 9))
         text_rect = fm.boundingRect(text)
         pad_x, pad_y = 14, 8
         w = text_rect.width()  + pad_x * 2
@@ -98,10 +101,10 @@ class _CustomTooltip(QWidget):
         path.addRoundedRect(0.5, 0.5,
                             self.width() - 1, self.height() - 1, 6, 6)
         p.setBrush(QColor("#FFFFFF"))
-        p.setPen(QPen(QColor("#A8D5BA"), 1.0))
+        p.setPen(QPen(QColor("#D8DADE"), 1.0))
         p.drawPath(path)
-        p.setPen(QColor("#1B4332"))
-        p.setFont(QFont("Segoe UI", 9))
+        p.setPen(QColor("#1D1D1F"))
+        p.setFont(QFont(ui_font_family(), 9))
         p.drawText(self.rect(), Qt.AlignCenter, self._text)
         p.end()
 
@@ -170,7 +173,7 @@ QComboBox {{
     background: {_CLR_SURFACE};
     border: 1.5px solid {_CLR_BORDER};
     border-radius: 7px;
-    padding: 4px 10px;
+    padding: 4px 7px;
     font: 13px {_FONT};
     color: {_CLR_TEXT};
     min-height: 32px;
@@ -180,7 +183,7 @@ QComboBox {{
 QComboBox:focus {{ border: 1.5px solid {_CLR_PRIMARY}; }}
 QComboBox::drop-down {{
     border: none;
-    width: 26px;
+    width: 18px;
     background: transparent;
     subcontrol-origin: padding;
     subcontrol-position: top right;
@@ -387,8 +390,8 @@ class _TitleBar(QWidget):
 
         # Full-height caption buttons (same style as recycle bin)
         self._btn_min   = _WinControlBtn("—",  "min",   _TITLE_BAR_H)
-        self._btn_max   = _WinControlBtn("⬜", "max",   _TITLE_BAR_H)
-        self._btn_close = _WinControlBtn("✕",  "close", _TITLE_BAR_H)
+        self._btn_max   = _WinControlBtn("", "max",   _TITLE_BAR_H)
+        self._btn_close = _WinControlBtn("",  "close", _TITLE_BAR_H)
 
         self._btn_min.setToolTip("Minimize")
         self._btn_max.setToolTip("Maximize / Restore")
@@ -885,14 +888,14 @@ class EditRecordDialog(QDialog):
             QPushButton {{
                 background: transparent;
                 color: {_CLR_DANGER};
-                border: 1.5px dashed #FECACA;
+                border: 1.5px dashed #F2C2BE;
                 border-radius: 7px;
                 padding: 0 14px;
                 font: 12px {_FONT};
             }}
             QPushButton:hover   {{ background: {_CLR_DANGER_BG}; border-color: {_CLR_DANGER}; }}
-            QPushButton:pressed {{ background: #FECACA; }}
-            QPushButton:disabled {{ color: #D1D5DB; border-color: {_CLR_GRID}; }}
+            QPushButton:pressed {{ background: #F7D7D4; }}
+            QPushButton:disabled {{ color: {theme.SUBTLE}; border-color: {_CLR_GRID}; }}
         """)
         del_btn.clicked.connect(lambda: self._delete_row(table))
         table.itemSelectionChanged.connect(
@@ -1011,12 +1014,25 @@ class EditRecordDialog(QDialog):
             QMessageBox.warning(self, "Validation", "Client name is required.")
             return
 
+        try:
+            month    = int(self.month_cb.currentText())
+            day      = int(self.date_cb.currentText())
+            year     = int(self.year_cb.currentText())
+            start_hr = int(self.start_h.currentText())
+            end_hr   = int(self.end_h.currentText())
+        except ValueError:
+            # An empty or non-numeric combo would otherwise raise inside a Qt
+            # slot, which kills the process instead of showing an error.
+            QMessageBox.warning(self, "Validation",
+                                "Date and time must be selected.")
+            return
+
         self.record["client_name"]           = client
-        self.record["month"]                 = int(self.month_cb.currentText())
-        self.record["date"]                  = int(self.date_cb.currentText())
-        self.record["year"]                  = int(self.year_cb.currentText())
-        self.record["start_time"]            = f"{int(self.start_h.currentText()):02d}:{self.start_m.currentText()}"
-        self.record["end_time"]              = f"{int(self.end_h.currentText()):02d}:{self.end_m.currentText()}"
+        self.record["month"]                 = month
+        self.record["date"]                  = day
+        self.record["year"]                  = year
+        self.record["start_time"]            = f"{start_hr:02d}:{self.start_m.currentText()}"
+        self.record["end_time"]              = f"{end_hr:02d}:{self.end_m.currentText()}"
         self.record["start_meridiem"]        = self.start_meridiem.currentText()
         self.record["end_meridiem"]          = self.end_meridiem.currentText()
         self.record["chemicals_use"]         = self._read_chem_table(self.chem_table,   "chemical_name")

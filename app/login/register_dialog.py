@@ -6,41 +6,77 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QCursor
 
-_G400 = "#2D6A4F"
-_G600 = "#1B4332"
-_G100 = "#C6F6D5"
-_BG   = "#F8FBF9"
-_BORDER = "#D4E6DA"
+from ui import theme
 
-_INPUT_SS = """
-QLineEdit {
-    background: #fff; color: #1B4332; border: 1.5px solid #D4E6DA;
-    border-radius: 8px; padding: 10px 14px; font: 11pt 'Segoe UI';
-}
-QLineEdit:focus { border: 2px solid #2D6A4F; }
-QLineEdit:hover { border-color: #74C69D; background: #F4FBF7; }
+_G400   = theme.G400
+_G600   = theme.G600
+_G100   = theme.G100
+_BG     = theme.SURFACE
+_BORDER = theme.BORDER
+_MUTED  = theme.MUTED
+
+# Text fields: white, hairline border, accent ring on focus.
+_INPUT_SS = f"""
+QLineEdit {{
+    background: {theme.SURFACE};
+    color: {theme.TEXT};
+    border: 1px solid {theme.BORDER};
+    border-radius: 8px;
+    padding: 10px 13px;
+    font: 10pt {theme.FONT};
+    selection-background-color: {theme.G100};
+    selection-color: {theme.TEXT};
+}}
+QLineEdit:hover  {{ border-color: #B9BBC1; }}
+QLineEdit:focus  {{ border: 1.5px solid {theme.G400}; background: {theme.SURFACE}; }}
 """
+
+# Filled primary button — no letter-spacing: macOS buttons are not tracked.
 _BTN_SS = f"""
 QPushButton {{
-    background: {_G400}; color: #fff; border: none;
-    border-radius: 8px; font: bold 10pt 'Segoe UI';
-    letter-spacing: 2px; padding: 12px;
+    background: {theme.G400};
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font: 600 10pt {theme.FONT};
+    padding: 12px;
 }}
-QPushButton:hover   {{ background: {_G600}; }}
-QPushButton:pressed {{ background: #081C15; }}
-QPushButton:disabled {{ background: #B7D5C4; color: rgba(255,255,255,0.6); }}
+QPushButton:hover    {{ background: {theme.G600}; }}
+QPushButton:pressed  {{ background: {theme.G800}; }}
+QPushButton:disabled {{ background: #C9CBD0; color: #FFFFFF; }}
 """
+
+# Plain accent link — macOS links are not underlined inside app chrome.
 _LINK_SS = f"""
-QPushButton {{ background: transparent; border: none;
-    color: {_G400}; font: 9pt 'Segoe UI'; text-decoration: underline; }}
-QPushButton:hover {{ color: {_G600}; }}
+QPushButton {{
+    background: transparent; border: none;
+    color: {theme.G400}; font: 9pt {theme.FONT};
+    padding: 4px 2px;
+}}
+QPushButton:hover   {{ color: {theme.G600}; }}
+QPushButton:pressed {{ color: {theme.G800}; }}
 """
+
+# Field caption: small, semibold, secondary — light tracking, not 2px.
 _LBL_SS = f"""
-QLabel {{ background: transparent; border: none; color: {_G400};
-    font: bold 8pt 'Segoe UI'; letter-spacing: 2px; }}
+QLabel {{
+    background: transparent; border: none;
+    color: {theme.MUTED}; font: 600 8pt {theme.FONT};
+    letter-spacing: 0.6px;
+}}
 """
-_ERR_SS = "QLabel { color: #DC2626; font: 9pt 'Segoe UI'; background: transparent; }"
-_OK_SS  = f"QLabel {{ color: {_G400}; font: 9pt 'Segoe UI'; background: transparent; }}"
+
+_ERR_SS = f"""QLabel {{
+    color: {theme.RED}; font: 9pt {theme.FONT};
+    background: {theme.RED_BG}; border: 1px solid #F6C9C5;
+    border-radius: 7px; padding: 8px 11px;
+}}"""
+_HIDDEN_SS = "QLabel { background: transparent; border: none; }"
+_OK_SS = f"""QLabel {{
+    color: {theme.G600}; font: 9pt {theme.FONT};
+    background: {theme.G50}; border: 1px solid {theme.G100};
+    border-radius: 7px; padding: 8px 11px;
+}}"""
 
 
 class RegisterDialog(QDialog):
@@ -58,13 +94,16 @@ class RegisterDialog(QDialog):
         outer.setContentsMargins(16, 16, 16, 16)
 
         self._card = QFrame()
+        self._card.setObjectName("authCard")
+        # Scoped by object name — an unscoped "QFrame" rule would also paint
+        # every child frame with this border.
         self._card.setStyleSheet(f"""
-            QFrame {{ background: {_BG}; border-radius: 16px;
-                     border: 1px solid {_BORDER}; }}
+            QFrame#authCard {{ background: {theme.SURFACE}; border-radius: 14px;
+                     border: 1px solid {theme.BORDER}; }}
         """)
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(40); shadow.setOffset(0, 6)
-        shadow.setColor(QColor(0, 0, 0, 70))
+        shadow.setBlurRadius(44); shadow.setOffset(0, 10)
+        shadow.setColor(QColor(0, 0, 0, 46))
         self._card.setGraphicsEffect(shadow)
         outer.addWidget(self._card)
 
@@ -75,16 +114,20 @@ class RegisterDialog(QDialog):
         # Header
         hdr = QHBoxLayout()
         title = QLabel("Create Account")
-        title.setStyleSheet(f"color: {_G600}; font: bold 18pt 'Georgia'; background: transparent;")
+        title.setStyleSheet(
+            f"color: {theme.TEXT}; font: 600 17pt {theme.FONT_DISPLAY};"
+            f" background: transparent; border: none;")
         hdr.addWidget(title)
         hdr.addStretch()
-        close_btn = QPushButton("✕")
+        close_btn = QPushButton(theme.Icon.CLOSE)
         close_btn.setFixedSize(26, 26)
         close_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        close_btn.setStyleSheet("""
-            QPushButton { background: transparent; border: none;
-                color: #A0B8AB; font: bold 10pt 'Segoe UI'; border-radius: 13px; }
-            QPushButton:hover { background: #E8F5EE; color: #1B4332; }
+        close_btn.setStyleSheet(f"""
+            QPushButton {{ background: transparent; border: none;
+                color: {theme.SUBTLE}; font: 9pt {theme.FONT_ICON};
+                border-radius: 13px; }}
+            QPushButton:hover   {{ background: #E8E8ED; color: {theme.TEXT}; }}
+            QPushButton:pressed {{ background: #DCDCE1; }}
         """)
         close_btn.clicked.connect(self.reject)
         hdr.addWidget(close_btn)
@@ -92,7 +135,9 @@ class RegisterDialog(QDialog):
         lay.addSpacing(4)
 
         sub = QLabel("Fill in the details to register a new admin")
-        sub.setStyleSheet("color: #6B8F78; font: 9pt 'Segoe UI'; background: transparent;")
+        sub.setStyleSheet(
+            f"color: {theme.MUTED}; font: 9pt {theme.FONT};"
+            f" background: transparent; border: none;")
         lay.addWidget(sub)
         lay.addSpacing(24)
 
@@ -124,7 +169,7 @@ class RegisterDialog(QDialog):
 
         self.statusLbl = QLabel("")
         self.statusLbl.setWordWrap(True)
-        self.statusLbl.setStyleSheet(_ERR_SS)
+        self.statusLbl.setStyleSheet(_HIDDEN_SS)   # no empty chip on open
         lay.addWidget(self.statusLbl)
         lay.addSpacing(6)
 
@@ -193,12 +238,12 @@ class RegisterDialog(QDialog):
         self.registerBtn.setText("CREATE ACCOUNT")
 
         if success:
-            self.statusLbl.setStyleSheet(_OK_SS)
-            self.statusLbl.setText("✓ Account created! You can now sign in.")
+            self.statusLbl.setStyleSheet(_OK_SS)   # chip appears with the text
+            self.statusLbl.setText("Account created. You can now sign in.")
             self.registerBtn.setEnabled(False)
         else:
             self._err(msg)
 
-    def _err(self, text: str):
+    def _err(self, text):
         self.statusLbl.setStyleSheet(_ERR_SS)
-        self.statusLbl.setText(text)
+        self.statusLbl.setText(str(text) if text else "")

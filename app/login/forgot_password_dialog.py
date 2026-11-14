@@ -6,60 +6,97 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QTimer, QSize
 from PyQt5.QtGui import QColor, QCursor, QFont
+import re
 
-_G400   = "#2D6A4F"
-_G600   = "#1B4332"
-_G100   = "#C6F6D5"
-_BG     = "#F8FBF9"
-_BORDER = "#D4E6DA"
-_MUTED  = "#6B8F78"
+from ui import theme
 
-_INPUT_SS = """
-QLineEdit {
-    background: #FFFFFF; color: #1B4332;
-    border: 1.5px solid #D4E6DA; border-radius: 8px;
-    padding: 10px 14px; font: 10pt 'Segoe UI';
-}
-QLineEdit:focus { border: 2px solid #2D6A4F; background: #FAFFFE; }
-QLineEdit:hover { border-color: #74C69D; }
+_G400   = theme.G400
+_G600   = theme.G600
+_G100   = theme.G100
+_BG     = theme.SURFACE
+_BORDER = theme.BORDER
+_MUTED  = theme.MUTED
+
+_INPUT_SS = f"""
+QLineEdit {{
+    background: {theme.SURFACE};
+    color: {theme.TEXT};
+    border: 1px solid {theme.BORDER};
+    border-radius: 8px;
+    padding: 10px 13px;
+    font: 10pt {theme.FONT};
+    selection-background-color: {theme.G100};
+    selection-color: {theme.TEXT};
+}}
+QLineEdit:hover {{ border-color: #B9BBC1; }}
+QLineEdit:focus {{ border: 1.5px solid {theme.G400}; }}
 """
-_OTP_SS = """
-QLineEdit {
-    background: #F0FAF4; color: #1B4332;
-    border: 2px solid #74C69D; border-radius: 10px;
-    font: bold 22pt 'Segoe UI'; letter-spacing: 12px;
-    padding: 14px; qproperty-alignment: AlignCenter;
-}
-QLineEdit:focus { border-color: #2D6A4F; background: #FFFFFF; }
+
+# One-time code: wide tracking, tabular figures, neutral field.
+_OTP_SS = f"""
+QLineEdit {{
+    background: {theme.SURFACE};
+    color: {theme.TEXT};
+    border: 1px solid {theme.BORDER};
+    border-radius: 10px;
+    font: 600 20pt {theme.FONT_DISPLAY};
+    letter-spacing: 10px;
+    padding: 12px;
+    qproperty-alignment: AlignCenter;
+}}
+QLineEdit:focus {{ border: 1.5px solid {theme.G400}; background: {theme.SURFACE}; }}
 """
+
 _BTN_PRIMARY_SS = f"""
 QPushButton {{
-    background: {_G400}; color: #fff; border: none;
-    border-radius: 8px; font: 600 10pt 'Segoe UI';
-    letter-spacing: 1px; padding: 12px;
+    background: {theme.G400};
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font: 600 10pt {theme.FONT};
+    padding: 12px;
 }}
-QPushButton:hover    {{ background: {_G600}; }}
-QPushButton:pressed  {{ background: #081C15; }}
-QPushButton:disabled {{ background: #B7D5C4; color: rgba(255,255,255,0.6); }}
+QPushButton:hover    {{ background: {theme.G600}; }}
+QPushButton:pressed  {{ background: {theme.G800}; }}
+QPushButton:disabled {{ background: #C9CBD0; color: #FFFFFF; }}
 """
+
 _BTN_LINK_SS = f"""
 QPushButton {{
     background: transparent; border: none;
-    color: {_MUTED}; font: 9pt 'Segoe UI';
+    color: {theme.G400}; font: 9pt {theme.FONT};
+    padding: 4px 2px;
 }}
-QPushButton:hover {{ color: {_G400}; text-decoration: underline; }}
+QPushButton:hover    {{ color: {theme.G600}; }}
+QPushButton:pressed  {{ color: {theme.G800}; }}
+QPushButton:disabled {{ color: {theme.SUBTLE}; }}
 """
+
 _LBL_CAP_SS = f"""
-QLabel {{ background: transparent; border: none; color: {_G400};
-    font: 700 8pt 'Segoe UI'; letter-spacing: 1.5px; }}
+QLabel {{
+    background: transparent; border: none;
+    color: {theme.MUTED}; font: 600 8pt {theme.FONT};
+    letter-spacing: 0.6px;
+}}
 """
-_ERR_SS = """QLabel { color: #DC2626; font: 9pt 'Segoe UI';
-    background: #FEF2F2; border: 1px solid #FECACA;
-    border-radius: 6px; padding: 8px 12px; }"""
-_OK_SS  = f"""QLabel {{ color: {_G400}; font: 9pt 'Segoe UI';
-    background: #F0FAF4; border: 1px solid {_G100};
-    border-radius: 6px; padding: 8px 12px; }}"""
+
+_ERR_SS = f"""QLabel {{
+    color: {theme.RED}; font: 9pt {theme.FONT};
+    background: {theme.RED_BG}; border: 1px solid #F6C9C5;
+    border-radius: 7px; padding: 8px 11px;
+}}"""
+_OK_SS = f"""QLabel {{
+    color: {theme.G600}; font: 9pt {theme.FONT};
+    background: {theme.G50}; border: 1px solid {theme.G100};
+    border-radius: 7px; padding: 8px 11px;
+}}"""
 _HIDDEN_SS = "QLabel { background: transparent; border: none; }"
+
+
+def _extract_email(text) -> str:
+    """Pick the address out of a message like "Code sent to a***@gmail.com"."""
+    match = re.search(r"\S+@\S+", str(text or ""))
+    return match.group(0).rstrip(".,;") if match else ""
 
 
 class ForgotPasswordDialog(QDialog):
@@ -84,17 +121,20 @@ class ForgotPasswordDialog(QDialog):
         outer.setContentsMargins(14, 14, 14, 14)
 
         self._card = QFrame()
+        self._card.setObjectName("authCard")
+        # Scoped by object name: an unscoped "QFrame" rule also paints every
+        # child frame (the stacked pages, the dividers) with this border.
         self._card.setStyleSheet(f"""
-            QFrame {{
-                background: {_BG};
-                border-radius: 18px;
-                border: 1px solid {_BORDER};
+            QFrame#authCard {{
+                background: {theme.SURFACE};
+                border-radius: 14px;
+                border: 1px solid {theme.BORDER};
             }}
         """)
         shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(48)
-        shadow.setOffset(0, 8)
-        shadow.setColor(QColor(0, 0, 0, 65))
+        shadow.setBlurRadius(44)
+        shadow.setOffset(0, 10)
+        shadow.setColor(QColor(0, 0, 0, 46))
         self._card.setGraphicsEffect(shadow)
         outer.addWidget(self._card)
 
@@ -104,8 +144,9 @@ class ForgotPasswordDialog(QDialog):
 
         # ── Colored top band ──────────────────────────────────────────────────
         band = QFrame()
-        band.setFixedHeight(6)
-        band.setStyleSheet(f"background: {_G400}; border-radius: 18px 18px 0 0;")
+        band.setFixedHeight(3)
+        band.setStyleSheet(
+            f"background: {theme.G400}; border: none; border-radius: 3px 3px 0 0;")
         root.addWidget(band)
 
         # ── Content area ──────────────────────────────────────────────────────
@@ -118,13 +159,15 @@ class ForgotPasswordDialog(QDialog):
         # Close button row
         close_row = QHBoxLayout()
         close_row.addStretch()
-        close_btn = QPushButton("✕")
+        close_btn = QPushButton(theme.Icon.CLOSE)
         close_btn.setFixedSize(28, 28)
         close_btn.setCursor(QCursor(Qt.PointingHandCursor))
-        close_btn.setStyleSheet("""
-            QPushButton { background: transparent; border: none;
-                color: #A0B8AB; font: bold 11pt 'Segoe UI'; border-radius: 14px; }
-            QPushButton:hover { background: #E8F5EE; color: #1B4332; }
+        close_btn.setStyleSheet(f"""
+            QPushButton {{ background: transparent; border: none;
+                color: {theme.SUBTLE}; font: 9pt {theme.FONT_ICON};
+                border-radius: 14px; }}
+            QPushButton:hover   {{ background: #E8E8ED; color: {theme.TEXT}; }}
+            QPushButton:pressed {{ background: #DCDCE1; }}
         """)
         close_btn.clicked.connect(self.reject)
         close_row.addWidget(close_btn)
@@ -132,18 +175,25 @@ class ForgotPasswordDialog(QDialog):
         content_lay.addSpacing(4)
 
         # Icon
-        icon_lbl = QLabel("🔐")
+        icon_lbl = QLabel(theme.Icon.LOCK)
+        icon_lbl.setFixedSize(52, 52)
         icon_lbl.setAlignment(Qt.AlignCenter)
         icon_lbl.setStyleSheet(
-            "font: 36pt 'Segoe UI'; background: transparent; border: none;")
-        content_lay.addWidget(icon_lbl)
+            f"font: 20pt {theme.FONT_ICON}; color: {theme.G400};"
+            f" background: {theme.G50}; border: 1px solid {theme.G100};"
+            f" border-radius: 26px;")
+        icon_row = QHBoxLayout()
+        icon_row.addStretch()
+        icon_row.addWidget(icon_lbl)
+        icon_row.addStretch()
+        content_lay.addLayout(icon_row)
         content_lay.addSpacing(10)
 
         # Title + subtitle (updatable)
         self._title = QLabel("Forgot Password")
         self._title.setAlignment(Qt.AlignCenter)
         self._title.setStyleSheet(
-            f"color: {_G600}; font: bold 20pt 'Georgia';"
+            f"color: {theme.TEXT}; font: 600 17pt {theme.FONT_DISPLAY};"
             f" background: transparent; border: none;")
         content_lay.addWidget(self._title)
         content_lay.addSpacing(6)
@@ -152,7 +202,7 @@ class ForgotPasswordDialog(QDialog):
         self._subtitle.setAlignment(Qt.AlignCenter)
         self._subtitle.setWordWrap(True)
         self._subtitle.setStyleSheet(
-            f"color: {_MUTED}; font: 9pt 'Segoe UI';"
+            f"color: {theme.MUTED}; font: 10pt {theme.FONT};"
             f" background: transparent; border: none;")
         content_lay.addWidget(self._subtitle)
         content_lay.addSpacing(24)
@@ -209,7 +259,7 @@ class ForgotPasswordDialog(QDialog):
         # Back link
         back_row = QHBoxLayout()
         back_row.addStretch()
-        back_btn = QPushButton("← Back to sign in")
+        back_btn = QPushButton("Back to sign in")
         back_btn.setCursor(QCursor(Qt.PointingHandCursor))
         back_btn.setStyleSheet(_BTN_LINK_SS)
         back_btn.clicked.connect(self.reject)
@@ -242,14 +292,15 @@ class ForgotPasswordDialog(QDialog):
         self.otpEdit.setFixedHeight(60)
         self.otpEdit.setMaxLength(6)
         self.otpEdit.setAlignment(Qt.AlignCenter)
-        self.otpEdit.setPlaceholderText("• • • • • •")
+        self.otpEdit.setPlaceholderText("000000")
         self.otpEdit.setStyleSheet(_OTP_SS)
         lay.addWidget(self.otpEdit)
         lay.addSpacing(18)
 
         # Divider
         div = QFrame(); div.setFrameShape(QFrame.HLine)
-        div.setStyleSheet("background: #E2EDE7; max-height: 1px; border: none;")
+        div.setStyleSheet(
+            f"background: {theme.BORDER}; max-height: 1px; border: none;")
         lay.addWidget(div)
         lay.addSpacing(18)
 
@@ -304,10 +355,11 @@ class ForgotPasswordDialog(QDialog):
         bottom_row.addWidget(self._resendBtn)
 
         sep = QLabel("·")
-        sep.setStyleSheet(f"color: {_MUTED}; background: transparent; border: none;")
+        sep.setStyleSheet(
+            f"color: {theme.SUBTLE}; background: transparent; border: none;")
         bottom_row.addWidget(sep)
 
-        back_btn = QPushButton("← Back")
+        back_btn = QPushButton("Back")
         back_btn.setCursor(QCursor(Qt.PointingHandCursor))
         back_btn.setStyleSheet(_BTN_LINK_SS)
         back_btn.clicked.connect(lambda: self._stack.setCurrentIndex(0))
@@ -348,12 +400,13 @@ class ForgotPasswordDialog(QDialog):
 
         if success:
             self._username = username
-            self._title.setText("Check Your Gmail")
+            email = _extract_email(msg)
+            self._title.setText("Check your email")
             self._subtitle.setText(
-                f"A 6-digit code was sent to:\n{msg}\n"
-                f"Enter it below to reset your password."
+                f"We sent a 6-digit code to {email}."
+                if email else "We sent you a 6-digit verification code."
             )
-            self._show_status(self._codeSentLbl, f"✓ Code sent to {msg}", error=False)
+            self._show_status(self._codeSentLbl, f"✓  {msg}", error=False)
             self.otpEdit.clear()
             self.newPwEdit.clear()
             self.confirmPwEdit.clear()
@@ -393,7 +446,7 @@ class ForgotPasswordDialog(QDialog):
 
         if success:
             self._show_status(self._step2Status,
-                              "✓ Password reset! You can now sign in.", error=False)
+                              "Password reset. You can now sign in.", error=False)
             self._resetBtn.setEnabled(False)
             self._resendBtn.setEnabled(False)
             self._resend_timer.stop()
@@ -403,15 +456,15 @@ class ForgotPasswordDialog(QDialog):
     def _resend_code(self):
         success, msg = self.api.forgot_password_service(self._username)
         if success:
-            self._show_status(self._codeSentLbl, f"✓ New code sent to {msg}", error=False)
+            self._show_status(self._codeSentLbl, f"✓  New code sent. {msg}", error=False)
             self._start_resend_cooldown(60)
         else:
             self._show_status(self._step2Status, msg, error=True)
 
     # ── Helpers ───────────────────────────────────────────────────────────────
-    def _show_status(self, lbl: QLabel, text: str, error: bool):
+    def _show_status(self, lbl: QLabel, text, error: bool):
         lbl.setStyleSheet(_ERR_SS if error else _OK_SS)
-        lbl.setText(text)
+        lbl.setText(str(text) if text else "")
         lbl.setFixedHeight(lbl.sizeHint().height() + 8)
 
     def _start_resend_cooldown(self, seconds: int):

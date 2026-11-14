@@ -126,7 +126,7 @@ class RecyclBinWindow(Operation, QMainWindow):
         self.ui.recycle_table.setCellWidget(row, 0, container)
 
     def _on_checkbox_changed(self, row: int, state: int):
-        color = QColor("#A8D5BA") if state == Qt.Checked else QColor(Qt.white)
+        color = QColor("#D8EFE2") if state == Qt.Checked else QColor(Qt.white)
         for col in range(1, self.ui.recycle_table.columnCount()):
             item = self.ui.recycle_table.item(row, col)
             if item:

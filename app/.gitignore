@@ -19,3 +19,6 @@ tempCodeRunnerFile.py
 Thumbs.db
 
 local_database.db
+
+# crash log written at runtime by main.install_crash_guard()
+error.log

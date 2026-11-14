@@ -8,66 +8,71 @@ image_path = os.path.join(base_dir, "assets")
 # ══════════════════════════════════════════════════════════════════════════════
 #  Style constants
 # ══════════════════════════════════════════════════════════════════════════════
-_PANEL_LEFT_SS = "QWidget#panelLeft { background-color: #1B4332; }"
-_PANEL_RIGHT_SS = "QWidget#panelRight { background-color: #F8FBF9; }"
-_LOGO_LABEL_SS = "background: transparent; border: none;"
+from ui import theme
 
-_BRAND_TITLE_SS = """
-QLabel { background: transparent; border: none; color: #C6F6D5;
-    font: bold 22pt 'Georgia'; letter-spacing: 4px; }"""
+_PANEL_LEFT_SS  = f"QWidget#panelLeft {{ background-color: {theme.SIDEBAR_BG}; }}"
+_PANEL_RIGHT_SS = f"QWidget#panelRight {{ background-color: {theme.SURFACE}; }}"
+_LOGO_LABEL_SS  = "background: transparent; border: none;"
 
-_BRAND_SUB_SS = """
-QLabel { background: transparent; border: none;
-    color: rgba(198,246,213,0.55); font: 9pt 'Segoe UI'; letter-spacing: 3px; }"""
+_BRAND_TITLE_SS = f"""
+QLabel {{ background: transparent; border: none; color: #FFFFFF;
+    font: 600 21pt {theme.FONT_DISPLAY}; letter-spacing: 3px; }}"""
+
+_BRAND_SUB_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: rgba(255,255,255,0.52); font: 8pt {theme.FONT};
+    letter-spacing: 2.5px; }}"""
 
 _BRAND_RULE_SS = """
-QFrame { background-color: rgba(198,246,213,0.30); border: none; max-height: 1px; }"""
+QFrame { background-color: rgba(255,255,255,0.16); border: none; max-height: 1px; }"""
 
-_BRAND_TAGLINE_SS = """
-QLabel { background: transparent; border: none;
-    color: rgba(198,246,213,0.45); font: italic 9pt 'Georgia'; }"""
+_BRAND_TAGLINE_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: rgba(255,255,255,0.45); font: 9pt {theme.FONT}; }}"""
 
-_FORM_HEADING_SS = """
-QLabel { background: transparent; border: none;
-    color: #1B4332; font: bold 20pt 'Georgia'; }"""
+_FORM_HEADING_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: {theme.TEXT}; font: 600 24pt {theme.FONT_DISPLAY}; }}"""
 
-_FORM_SUB_SS = """
-QLabel { background: transparent; border: none;
-    color: #6B8F78; font: 9pt 'Segoe UI'; letter-spacing: 1px; }"""
+_FORM_SUB_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: {theme.MUTED}; font: 10pt {theme.FONT}; letter-spacing: 0; }}"""
 
-_FIELD_LABEL_SS = """
-QLabel { background: transparent; border: none; color: #2D6A4F;
-    font: bold 8pt 'Segoe UI'; letter-spacing: 2px; }"""
+_FIELD_LABEL_SS = f"""
+QLabel {{ background: transparent; border: none; color: {theme.MUTED};
+    font: 600 8pt {theme.FONT}; letter-spacing: 0.6px; }}"""
 
-_INPUT_SS = """
-QLineEdit {
-    background-color: #FFFFFF; color: #1B4332;
-    border: 1.5px solid #D4E6DA; border-radius: 8px;
-    padding: 10px 14px; font: 11pt 'Segoe UI';
-    selection-background-color: #C6F6D5;
-}
-QLineEdit:hover  { border: 1.5px solid #74C69D; background-color: #F4FBF7; }
-QLineEdit:focus  { border: 2px solid #2D6A4F; background-color: #FFFFFF; }
+_INPUT_SS = f"""
+QLineEdit {{
+    background-color: {theme.SURFACE}; color: {theme.TEXT};
+    border: 1px solid {theme.BORDER}; border-radius: 8px;
+    padding: 10px 13px; font: 10pt {theme.FONT};
+    selection-background-color: {theme.G100};
+    selection-color: {theme.TEXT};
+}}
+QLineEdit:hover  {{ border-color: #B9BBC1; }}
+QLineEdit:focus  {{ border: 1.5px solid {theme.G400}; }}
 """
 
-_LOGIN_BTN_SS = """
-QPushButton {
-    background-color: #2D6A4F; color: #FFFFFF; border: none;
-    border-radius: 8px; font: bold 10pt 'Segoe UI';
-    letter-spacing: 3px; padding: 12px;
-}
-QPushButton:hover    { background-color: #1B4332; }
-QPushButton:pressed  { background-color: #081C15; }
-QPushButton:disabled { background-color: #B7D5C4; color: rgba(255,255,255,0.60); }
+_LOGIN_BTN_SS = f"""
+QPushButton {{
+    background-color: {theme.G400}; color: #FFFFFF; border: none;
+    border-radius: 8px; font: 600 10pt {theme.FONT};
+    letter-spacing: 0; padding: 12px;
+}}
+QPushButton:hover    {{ background-color: {theme.G600}; }}
+QPushButton:pressed  {{ background-color: {theme.G800}; }}
+QPushButton:disabled {{ background-color: #C9CBD0; color: #FFFFFF; }}
 """
 
-_FOOTER_SS = """
-QLabel { background: transparent; border: none;
-    color: #A0B8AB; font: 8pt 'Segoe UI'; }"""
+_FOOTER_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: {theme.SUBTLE}; font: 8pt {theme.FONT}; }}"""
 
-_VERSION_SS = """
-QLabel { background: transparent; border: none;
-    color: rgba(198,246,213,0.35); font: 8pt 'Segoe UI'; letter-spacing: 1px; }"""
+_VERSION_SS = f"""
+QLabel {{ background: transparent; border: none;
+    color: rgba(255,255,255,0.32); font: 8pt {theme.FONT};
+    letter-spacing: 0.5px; }}"""
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -84,15 +89,15 @@ class Ui_Login(object):
 
         self.centralwidget = QtWidgets.QWidget(Login)
         self.centralwidget.setObjectName("centralwidget")
-        self.centralwidget.setStyleSheet("""
-            QWidget#centralwidget {
-                background-color: #F8FBF9;
-                border-radius: 18px;
-            }
+        self.centralwidget.setStyleSheet(f"""
+            QWidget#centralwidget {{
+                background-color: {theme.SURFACE};
+                border-radius: 14px;
+            }}
         """)
         shadow = QtWidgets.QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(50); shadow.setOffset(0, 8)
-        shadow.setColor(QtGui.QColor(0, 0, 0, 80))
+        shadow.setBlurRadius(48); shadow.setOffset(0, 10)
+        shadow.setColor(QtGui.QColor(0, 0, 0, 52))
         self.centralwidget.setGraphicsEffect(shadow)
         Login.setCentralWidget(self.centralwidget)
 
@@ -177,13 +182,15 @@ class Ui_Login(object):
         top_bar = QtWidgets.QHBoxLayout()
         top_bar.setContentsMargins(0, 16, 0, 0)
         top_bar.addStretch()
-        self.closeBtn = QtWidgets.QPushButton("✕")
+        self.closeBtn = QtWidgets.QPushButton(theme.Icon.CLOSE)
         self.closeBtn.setFixedSize(28, 28)
         self.closeBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.closeBtn.setStyleSheet("""
-            QPushButton { background: transparent; border: none; color: #A0B8AB;
-                font: bold 11pt 'Segoe UI'; border-radius: 14px; }
-            QPushButton:hover { background-color: #E8F5EE; color: #1B4332; }
+        self.closeBtn.setStyleSheet(f"""
+            QPushButton {{ background: transparent; border: none;
+                color: {theme.SUBTLE}; font: 9pt {theme.FONT_ICON};
+                border-radius: 14px; }}
+            QPushButton:hover   {{ background-color: #E8E8ED; color: {theme.TEXT}; }}
+            QPushButton:pressed {{ background-color: #DCDCE1; }}
         """)
         self.closeBtn.clicked.connect(Login.close)
         top_bar.addWidget(self.closeBtn)
@@ -244,14 +251,17 @@ class Ui_Login(object):
         eye_h = QtWidgets.QHBoxLayout(eye_overlay)
         eye_h.setContentsMargins(0, 0, 6, 0)
         eye_h.addStretch()
-        self.eyeBtn = QtWidgets.QPushButton("👁")
+        self.eyeBtn = QtWidgets.QPushButton(theme.Icon.EYE_SHOW)
         self.eyeBtn.setFixedSize(34, 34)
         self.eyeBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.eyeBtn.setCheckable(True)
-        self.eyeBtn.setStyleSheet("""
-            QPushButton { background: transparent; border: none;
-                color: #A0B8AB; font: 12pt 'Segoe UI'; }
-            QPushButton:hover { color: #2D6A4F; }
+        self.eyeBtn.setToolTip("Show password")
+        self.eyeBtn.setStyleSheet(f"""
+            QPushButton {{ background: transparent; border: none;
+                color: {theme.SUBTLE}; font: 11pt {theme.FONT_ICON};
+                border-radius: 8px; }}
+            QPushButton:hover   {{ color: {theme.G400}; background: {theme.BG}; }}
+            QPushButton:checked {{ color: {theme.G400}; }}
         """)
         self.eyeBtn.toggled.connect(self._toggle_password)
         eye_h.addWidget(self.eyeBtn, 0, QtCore.Qt.AlignVCenter)
@@ -263,7 +273,8 @@ class Ui_Login(object):
         # ── Divider ───────────────────────────────────────────────────────────
         divider = QtWidgets.QFrame()
         divider.setFrameShape(QtWidgets.QFrame.HLine)
-        divider.setStyleSheet("background-color: #E2EDE7; border: none; max-height: 1px;")
+        divider.setStyleSheet(
+            f"background-color: {theme.BORDER}; border: none; max-height: 1px;")
         right_layout.addWidget(divider)
         right_layout.addSpacing(16)       # ← reduced from 28
 
@@ -281,10 +292,11 @@ class Ui_Login(object):
         forgot_row.addStretch()
         self.forgotBtn = QtWidgets.QPushButton("Forgot password?")
         self.forgotBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        self.forgotBtn.setStyleSheet("""
-            QPushButton { background: transparent; border: none;
-                color: #6B8F78; font: 9pt 'Segoe UI'; text-decoration: underline; }
-            QPushButton:hover { color: #2D6A4F; }
+        self.forgotBtn.setStyleSheet(f"""
+            QPushButton {{ background: transparent; border: none;
+                color: {theme.G400}; font: 9pt {theme.FONT}; padding: 4px; }}
+            QPushButton:hover   {{ color: {theme.G600}; }}
+            QPushButton:pressed {{ color: {theme.G800}; }}
         """)
         forgot_row.addWidget(self.forgotBtn)
         forgot_row.addStretch()
@@ -296,13 +308,16 @@ class Ui_Login(object):
         or_row.setSpacing(10)
         _line1 = QtWidgets.QFrame()
         _line1.setFrameShape(QtWidgets.QFrame.HLine)
-        _line1.setStyleSheet("background: #E2EDE7; max-height: 1px; border: none;")
+        _line1.setStyleSheet(
+            f"background: {theme.BORDER}; max-height: 1px; border: none;")
         _or_lbl = QtWidgets.QLabel("OR")
         _or_lbl.setStyleSheet(
-            "color: #A0B8AB; font: 8pt 'Segoe UI'; background: transparent; border: none;")
+            f"color: {theme.SUBTLE}; font: 8pt {theme.FONT};"
+            f" background: transparent; border: none;")
         _line2 = QtWidgets.QFrame()
         _line2.setFrameShape(QtWidgets.QFrame.HLine)
-        _line2.setStyleSheet("background: #E2EDE7; max-height: 1px; border: none;")
+        _line2.setStyleSheet(
+            f"background: {theme.BORDER}; max-height: 1px; border: none;")
         or_row.addWidget(_line1, 1)
         or_row.addWidget(_or_lbl)
         or_row.addWidget(_line2, 1)
@@ -314,14 +329,15 @@ class Ui_Login(object):
         self.registerBtn.setFixedHeight(44)
         self.registerBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.registerBtn.setObjectName("registerBtn")
-        self.registerBtn.setStyleSheet("""
-            QPushButton {
-                background: transparent; color: #2D6A4F;
-                border: 1.5px solid #2D6A4F; border-radius: 8px;
-                font: 500 10pt 'Segoe UI'; letter-spacing: 1px;
-            }
-            QPushButton:hover   { background: #EBF7F0; border-color: #1B4332; color: #1B4332; }
-            QPushButton:pressed { background: #D4EDE2; }
+        self.registerBtn.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme.SURFACE}; color: {theme.G400};
+                border: 1px solid {theme.BORDER}; border-radius: 8px;
+                font: 500 10pt {theme.FONT}; letter-spacing: 0;
+            }}
+            QPushButton:hover   {{ background: {theme.G50};
+                                   border-color: {theme.G200}; color: {theme.G600}; }}
+            QPushButton:pressed {{ background: {theme.G100}; }}
         """)
         right_layout.addWidget(self.registerBtn)
 
@@ -350,10 +366,12 @@ class Ui_Login(object):
     def _toggle_password(self, checked):
         if checked:
             self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Normal)
-            self.eyeBtn.setText("🙈")
+            self.eyeBtn.setText(theme.Icon.EYE_HIDE)
+            self.eyeBtn.setToolTip("Hide password")
         else:
             self.passwordEdit.setEchoMode(QtWidgets.QLineEdit.Password)
-            self.eyeBtn.setText("👁")
+            self.eyeBtn.setText(theme.Icon.EYE_SHOW)
+            self.eyeBtn.setToolTip("Show password")
 
     def _mouse_press(self, event):
         if event.button() == QtCore.Qt.LeftButton:

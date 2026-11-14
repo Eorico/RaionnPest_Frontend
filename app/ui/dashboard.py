@@ -5,20 +5,18 @@ import os
 base_dir   = os.path.dirname(__file__)
 image_path = os.path.join(base_dir, "assets")
 
-_G50  = "#F0FAF4"
-_G100 = "#C6F6D5"
-_G200 = "#74C69D"
-_G400 = "#2D6A4F"
-_G600 = "#1B4332"
-_G800 = "#081C15"
+# ── Palette, typography: see ui/theme.py (single source of truth) ────────────
+from ui.theme import (
+    G50 as _G50, G100 as _G100, G200 as _G200, G400 as _G400,
+    G600 as _G600, G800 as _G800,
+    SURFACE as _SURFACE, BG as _BG, TEXT as _TEXT, MUTED as _MUTED,
+    SUBTLE as _SUBTLE, BORDER as _BORDER,
+    HEADER_BG as _HEADER_BG, SIDEBAR_BG as _SIDEBAR_BG,
+    BLUE as _BLUE, BLUE_HI as _BLUE_HI, RED as _RED, RED_HI as _RED_HI,
+    FONT as _FONT, FONT_DISPLAY as _FONT_DISPLAY,
+)
+from ui.theme import ui_font_family
 
-_SIDEBAR_BG = "#1A3D2B"
-_HEADER_BG  = _G400
-_SURFACE    = "#FFFFFF"
-_BG         = "#F4FAF7"
-_TEXT       = _G600
-_MUTED      = "#6B8F78"
-_BORDER     = "#E0EDE6"
 
 _SIDEBAR_EXPANDED  = 220
 _SIDEBAR_COLLAPSED = 52
@@ -27,7 +25,7 @@ _SS_INPUT = f"""
 QLineEdit {{
     background: {_SURFACE}; border: 1px solid {_BORDER};
     border-radius: 7px; padding: 0 10px;
-    font: 11pt 'Segoe UI'; color: {_TEXT};
+    font: 11pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; color: {_TEXT};
 }}
 QLineEdit:focus {{ border-color: {_G200}; background: #FAFFFE; }}
 QLineEdit::placeholder {{ color: {_MUTED}; }}
@@ -37,14 +35,14 @@ _SS_SELECT = f"""
 QComboBox {{
     background: {_BG}; border: 1px solid {_BORDER};
     border-radius: 7px; padding: 0 10px;
-    font: 10pt 'Segoe UI'; color: {_TEXT}; min-height: 32px;
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; color: {_TEXT}; min-height: 32px;
 }}
 QComboBox:focus {{ border-color: {_G200}; }}
 QComboBox::drop-down {{ border: none; width: 18px; }}
 QComboBox QAbstractItemView {{
     background: {_SURFACE}; border: 1px solid {_BORDER};
     border-radius: 6px; selection-background-color: {_G400};
-    selection-color: #fff; font: 10pt 'Segoe UI';
+    selection-color: #fff; font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 """
 
@@ -52,15 +50,15 @@ _SS_TABLE_MINI = f"""
 QTableWidget {{
     background: {_SURFACE}; alternate-background-color: {_BG};
     gridline-color: {_BORDER}; border: none;
-    font: 10pt 'Segoe UI'; color: {_TEXT};
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; color: {_TEXT};
     selection-background-color: {_G100}; selection-color: {_TEXT};
 }}
 QTableWidget::item {{ padding: 5px 8px; border: none; }}
-QTableWidget::item:hover {{ background: #E8F5EE; }}
+QTableWidget::item:hover {{ background: {_G50}; }}
 QHeaderView::section {{
     background: {_G400}; color: #fff; border: none;
     border-right: 1px solid {_G600}; padding: 6px 8px;
-    font: 500 9pt 'Segoe UI';
+    font: 500 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QHeaderView {{ background: transparent; border: none; }}
 QTableCornerButton::section {{ background: {_G400}; border: none; }}
@@ -73,15 +71,15 @@ _SS_TABLE_MAIN = f"""
 QTableWidget {{
     background: {_SURFACE}; alternate-background-color: {_BG};
     gridline-color: {_BORDER}; border: none;
-    font: 10pt 'Segoe UI'; color: {_TEXT};
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; color: {_TEXT};
     selection-background-color: {_G100}; selection-color: {_TEXT};
 }}
 QTableWidget::item {{ padding: 8px 12px; border: none; }}
-QTableWidget::item:hover {{ background: #E8F5EE; }}
+QTableWidget::item:hover {{ background: {_G50}; }}
 QHeaderView::section {{
     background: {_G400}; color: #fff; border: none;
     border-right: 1px solid {_G600}; padding: 8px 12px;
-    font: 500 10pt 'Segoe UI';
+    font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QHeaderView {{ background: transparent; border: none; }}
 QTableCornerButton::section {{ background: {_G400}; border: none; }}
@@ -97,7 +95,7 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{ width: 0; }}
 _SS_BTN_PRIMARY = f"""
 QPushButton {{
     background: {_G400}; color: #fff; border: none;
-    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'Segoe UI';
+    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover   {{ background: {_G600}; }}
 QPushButton:pressed {{ background: {_G800}; }}
@@ -106,27 +104,27 @@ QPushButton:disabled {{ background: {_G100}; color: rgba(255,255,255,.5); }}
 
 _SS_BTN_DANGER = """
 QPushButton {
-    background: #DC2626; color: #fff; border: none;
-    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'Segoe UI';
+    background: #D70015; color: #fff; border: none;
+    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }
-QPushButton:hover   { background: #B91C1C; }
-QPushButton:pressed { background: #991B1B; }
+QPushButton:hover   { background: #B3000F; }
+QPushButton:pressed { background: #8F000C; }
 """
 
 _SS_BTN_PDF = """
 QPushButton {
-    background: #1D4ED8; color: #fff; border: none;
-    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'Segoe UI';
+    background: #0071E3; color: #fff; border: none;
+    border-radius: 7px; padding: 8px 16px; font: 500 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }
-QPushButton:hover   { background: #1E40AF; }
-QPushButton:pressed { background: #1E3A8A; }
+QPushButton:hover   { background: #0062C4; }
+QPushButton:pressed { background: #0054A8; }
 """
 
 _SS_BTN_OUTLINE = f"""
 QPushButton {{
     background: transparent; color: {_G400};
     border: 1px solid {_G400}; border-radius: 6px;
-    padding: 3px 10px; font: 500 9pt 'Segoe UI';
+    padding: 3px 10px; font: 500 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover   {{ background: {_G400}; color: #fff; }}
 QPushButton:pressed {{ background: {_G600}; color: #fff; }}
@@ -139,7 +137,7 @@ QPushButton {{
     color: rgba(198,246,213,0.60);
     border: none; border-radius: 8px;
     padding: 9px 12px; text-align: left;
-    font: 10pt 'Segoe UI';
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover {{
     background: rgba(255,255,255,0.07);
@@ -153,14 +151,14 @@ QPushButton:pressed {{
 _SS_NAV_ACTIVE = f"""
 QPushButton {{
     background: rgba(198,246,213,0.13);
-    color: #C6F6D5; font-weight: 600;
+    color: #FFFFFF; font-weight: 600;
     border: none; border-left: 3px solid {_G200}; border-radius: 8px;
     padding: 9px 12px; text-align: left;
-    font: 10pt 'Segoe UI';
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }}
 QPushButton:hover {{
     background: rgba(198,246,213,0.18);
-    color: #C6F6D5;
+    color: #FFFFFF;
 }}
 QPushButton:pressed {{
     background: rgba(198,246,213,0.22);
@@ -172,7 +170,7 @@ QPushButton {
     background: transparent; color: rgba(255,120,100,0.70);
     border: none; border-radius: 8px;
     padding: 9px 12px; text-align: left;
-    font: 10pt 'Segoe UI';
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';
 }
 QPushButton:hover {
     background: rgba(255,100,80,0.10);
@@ -186,7 +184,7 @@ QPushButton:pressed {
 _SS_SEARCH = f"""
 QLineEdit {{
     background: transparent; border: none;
-    font: 10pt 'Segoe UI'; color: {_TEXT};
+    font: 10pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; color: {_TEXT};
 }}
 QLineEdit::placeholder {{ color: {_MUTED}; }}
 """
@@ -195,9 +193,9 @@ QLineEdit::placeholder {{ color: {_MUTED}; }}
 _SS_TOGGLE_BTN = f"""
 QPushButton {{
     background: transparent;
-    color: rgba(198,246,213,0.60);
+    color: rgba(255,255,255,0.62);
     border: none; border-radius: 8px;
-    font: 14pt 'Segoe UI';
+    font: 12pt 'Segoe Fluent Icons','Segoe MDL2 Assets','Segoe UI Symbol';
 }}
 QPushButton:hover {{
     background: rgba(198,246,213,0.13);
@@ -205,17 +203,17 @@ QPushButton:hover {{
 }}
 QPushButton:pressed {{
     background: rgba(198,246,213,0.22);
-    color: #C6F6D5;
+    color: #FFFFFF;
 }}
 """
 
 _LABEL_SECTION = (
     f"background: transparent; border: none; "
-    f"color: {_MUTED}; font: 600 8pt 'Segoe UI'; letter-spacing: 1.5px;"
+    f"color: {_MUTED}; font: 600 8pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; letter-spacing: 1.5px;"
 )
 _LABEL_TIME = (
     f"background: transparent; border: none; "
-    f"color: {_G400}; font: 600 9pt 'Segoe UI';"
+    f"color: {_G400}; font: 600 9pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI';"
 )
 
 
@@ -243,7 +241,7 @@ class CaptionButton(QtWidgets.QPushButton):
         self.setStyleSheet(f"""
             QPushButton {{
                 background: {bg}; color: {fg}; border: none; border-radius: 0px;
-                font: 11pt 'Segoe MDL2 Assets', 'Segoe UI Symbol', 'Arial';
+                font: 10pt 'Segoe Fluent Icons','Segoe MDL2 Assets','Segoe UI Symbol';
             }}
             QPushButton:pressed {{ background: {bg_press}; }}
         """)
@@ -262,9 +260,9 @@ class WindowControls(QtWidgets.QWidget):
         h = QtWidgets.QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
         h.setSpacing(0)
-        self.minimizeBtn = CaptionButton("─", is_close=False)
-        self.maximizeBtn = CaptionButton("□", is_close=False)
-        self.closeBtn    = CaptionButton("✕", is_close=True)
+        self.minimizeBtn = CaptionButton("", is_close=False)
+        self.maximizeBtn = CaptionButton("", is_close=False)
+        self.closeBtn    = CaptionButton("", is_close=True)
         self.minimizeBtn.setToolTip("Minimize")
         self.maximizeBtn.setToolTip("Maximize / Restore")
         self.closeBtn.setToolTip("Close")
@@ -354,7 +352,7 @@ def _nav_section_lbl(text: str) -> QtWidgets.QLabel:
     lbl = QtWidgets.QLabel(text)
     lbl.setContentsMargins(16, 12, 0, 4)
     lbl.setStyleSheet(
-        "color: rgba(198,246,213,0.32); font: 600 7pt 'Segoe UI'; "
+        "color: rgba(198,246,213,0.32); font: 600 7pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; "
         "letter-spacing: 1.8px; background: transparent; border: none;")
     return lbl
 
@@ -519,7 +517,7 @@ def _build_treatment_page(ui) -> QtWidgets.QWidget:
         sep = QtWidgets.QLabel(":")
         sep.setFixedWidth(8); sep.setAlignment(QtCore.Qt.AlignCenter)
         sep.setStyleSheet(
-            f"color: {_MUTED}; font: 600 14pt 'Segoe UI'; background: transparent; border: none;")
+            f"color: {_MUTED}; font: 600 14pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
         row.addWidget(sep)
 
         m_c = QtWidgets.QComboBox(); m_c.setObjectName(attr_m)
@@ -620,7 +618,7 @@ def _build_treatment_page(ui) -> QtWidgets.QWidget:
     rp_hdr = QtWidgets.QHBoxLayout()
     rp_title = QtWidgets.QLabel("Inventory records")
     rp_title.setStyleSheet(
-        f"color: {_TEXT}; font: 600 12pt 'Segoe UI'; background: transparent; border: none;")
+        f"color: {_TEXT}; font: 600 12pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; background: transparent; border: none;")
     rp_hdr.addWidget(rp_title); rp_hdr.addStretch()
     rp_v.addLayout(rp_hdr)
 
@@ -649,7 +647,7 @@ def _build_treatment_page(ui) -> QtWidgets.QWidget:
         ("Remarks", 350), ("Edit", 100),
     ]):
         item = QtWidgets.QTableWidgetItem(txt)
-        item.setFont(QtGui.QFont("Segoe UI", 9, QtGui.QFont.Medium))
+        item.setFont(QtGui.QFont(ui_font_family(), 9, QtGui.QFont.Medium))
         ui.tableListahan.setHorizontalHeaderItem(col, item)
         ui.tableListahan.setColumnWidth(col, w)
 
@@ -670,16 +668,9 @@ def _build_treatment_page(ui) -> QtWidgets.QWidget:
 class Ui_Dashboard(object):
 
     def setupUi(self, Dashboard):
-        QtWidgets.QApplication.instance().setStyleSheet("""
-           QToolTip {
-                background-color: #2D6A4F;
-                color: #ffffff;
-                border: 1px solid #74C69D;
-                border-radius: 5px;
-                padding: 4px 8px;
-                font: 10pt 'Segoe UI';
-            }
-        """)
+        # NOTE: do not call QApplication.setStyleSheet() here — it replaces the
+        # app-wide sheet installed by ui.theme.install().  QToolTip is styled
+        # there; this window only styles its own widgets.
         Dashboard.setObjectName("Dashboard")
         Dashboard.resize(1400, 900)
         Dashboard.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.Window)
@@ -706,18 +697,9 @@ class Ui_Dashboard(object):
         tb_h.setSpacing(0)
 
         # Hamburger toggle button (left edge of title bar)
-        self._toggleBtn = QtWidgets.QPushButton("☰")
+        self._toggleBtn = QtWidgets.QPushButton("")
         self._toggleBtn.setFixedSize(52, 56)
-        self._toggleBtn.setStyleSheet(_SS_TOGGLE_BTN + """
-            QToolTip {
-                background-color: #2D6A4F;
-                color: #ffffff;
-                border: 1px solid #74C69D;
-                border-radius: 5px;
-                padding: 4px 8px;
-                font: 10pt 'Segoe UI';
-            }
-        """)
+        self._toggleBtn.setStyleSheet(_SS_TOGGLE_BTN)
  
         self._toggleBtn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self._toggleBtn.setToolTip("Toggle sidebar")
@@ -746,12 +728,12 @@ class Ui_Dashboard(object):
         self.appTitle_2 = QtWidgets.QLabel("RAIONN")
         self.appTitle_2.setObjectName("appTitle_2")
         self.appTitle_2.setStyleSheet(
-            "color: #ffffff; font: 700 13pt 'Georgia'; "
+            "color: #ffffff; font: 700 13pt 'SF Pro Display', '.AppleSystemUIFont', 'Segoe UI Variable Display', 'Segoe UI'; "
             "background: transparent; letter-spacing: 2px;")
         name_v.addWidget(self.appTitle_2)
         sub = QtWidgets.QLabel("Pest Management System")
         sub.setStyleSheet(
-            "color: rgba(198,246,213,0.50); font: 7pt 'Segoe UI'; "
+            "color: rgba(198,246,213,0.50); font: 7pt 'SF Pro Text', '.AppleSystemUIFont', 'Segoe UI Variable Text', 'Segoe UI'; "
             "background: transparent; letter-spacing: 0.5px;")
         name_v.addWidget(sub)
         tb_h.addLayout(name_v)

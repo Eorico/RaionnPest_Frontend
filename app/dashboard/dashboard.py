@@ -253,18 +253,6 @@ class DashboardWindow(Operation, QMainWindow):
         else:
             self.load_table_data_dashboard()
 
-    def handle_logout_dashboard(self):
-        reply = QMessageBox.question(
-            self,
-            'Confirm Logout',
-            'Are you sure you want to exit the system?',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-
-        if reply == QMessageBox.Yes:
-            self.close()
-
     def clear_inputs_dashboard(self):
         self.ui.nameofClientinput.clear()
 
