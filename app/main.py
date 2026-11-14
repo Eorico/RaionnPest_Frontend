@@ -1,3 +1,5 @@
+import utils.transport
+import utils.session
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from service.api.api_service import ApiService
 from service.offline.Service.offlineApiService import OfflineCapableApiService  # ← NEW
